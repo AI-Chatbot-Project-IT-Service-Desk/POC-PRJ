@@ -51,6 +51,7 @@ with col1:
     st.write("")  # Empty column to push the buttons to the right
 with col2:
     upload_button = st.button("데이터 업로드", key="upload")
+    print("태영", upload_button)
     st.markdown('<div id="upload_button"></div>', unsafe_allow_html=True)
 with col3:
     download_button = st.button("양식 다운로드", key="download")
