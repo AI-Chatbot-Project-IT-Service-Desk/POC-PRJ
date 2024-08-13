@@ -51,6 +51,7 @@ with col1:
     st.write("")  # Empty column to push the buttons to the right
 with col2:
     upload_button = st.button("데이터 업로드", key="upload")
+    print("태영", upload_button)
     st.markdown('<div id="upload_button"></div>', unsafe_allow_html=True)
 with col3:
     download_button = st.button("양식 다운로드", key="download")
@@ -60,11 +61,11 @@ with col4:
     st.markdown('<div id="delete_button"></div>', unsafe_allow_html=True)
 
 # File upload
-uploaded_file = st.file_uploader("xlsx 파일 업로드", type="xlsx")
+uploaded_file = st.file_uploader("pdf 파일 업로드", type="pdf")
 
 if uploaded_file:
     # Read the uploaded XLSX file
-    df = pd.read_excel(uploaded_file)
+    df = pd.read_fwf(uploaded_file)
 else:
     df = sample_df
 
