@@ -11,3 +11,6 @@ eval_type_backport
 langchain-community
 ipython
 pymupdf
+object-store-python
+streamlit
+pandas
