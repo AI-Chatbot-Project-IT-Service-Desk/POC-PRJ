@@ -207,7 +207,7 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
     
     try:
         uploaded_file.seek(0)
-        store.put(filecode + '.pdf', uploaded_file.read())
+        store.put(f'{filecode}.pdf', uploaded_file.read())
     except Exception as e:
         print(f"파일을 초기화 하는 도중 에러가 발생하였습니다.: {e}")
 
@@ -217,7 +217,7 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
         with open(full_path, 'rb') as file:
             pdf_bytes = file.read()
 
-        store.put(division_file, pdf_bytes)
+        store.put(f"{division_file}", pdf_bytes)
     
     print("[LOG] S3 Object Store Upload를 완료하였습니다")
 
@@ -259,7 +259,7 @@ def extract_pdf_to_dataframe(uploaded_file, split_file_list):
     switch_addtional = False
 
     for row in df_temp.itertuples(index=True):
-        print(row.Index, row.text, row.font_size)
+        #print(row.Index, row.text, row.font_size)
         if int(row.font_size) == 18 :
             if row.Index == 1:
                 title = row.text
@@ -331,13 +331,18 @@ def extract_pdf_to_dataframe(uploaded_file, split_file_list):
         df_final = pd.concat([df_final, new_row], ignore_index=True) 
 
     #pdf 파일 맵핑
-    df_final['SolutionDoc'] = split_file_list
+
+    print(df_final)
+    print("최종본의 길이", len(df_final['SolutionDoc']))
+    print("자식의 길이", split_file_list)
+
+    #df_final['SolutionDoc'] = split_file_list
 
     print("[LOG] DataFrame successfully created.")
     return df_final
 
 #[20240812 강태영] HANA Cloud 에 Dataframe row 단위로 집어넣는 로직
-def upload_dataframe_to_hanacloud(extract_dataframe):
+def upload_dataframe_toh_hanacloud(extract_dataframe):
     #파일명이 같을 때의 경우 처리 방법 고민 필요(2024-08-12)
     with open(os.path.join(os.getcwd(), '../config/cesco-poc-hc-service-key.json')) as f:
         hana_env_c = json.load(f)
@@ -379,7 +384,7 @@ def upload_dataframe_to_hanacloud(extract_dataframe):
             cursor.close()
         cc.connection.setautocommit(True)
 
-        print("[LOG] Successfully uploaded to HANA Cloud.")
+    print("[LOG] Successfully uploaded to HANA Cloud.")
 
 def delete_division_file(page_output_dir):
     if os.path.exists(page_output_dir):
@@ -411,13 +416,13 @@ def main():
         extract_dataframe = extract_pdf_to_dataframe(uploaded_file, split_file_list)
 
         #HANA CLOUD UPLOAD
-        upload_dataframe_to_hanacloud(extract_dataframe)
+        #upload_dataframe_to_hanacloud(extract_dataframe)
 
         #Object Store S3에 업로드 하기
         object_store_upload(uploaded_file, filecode, page_output_dir)
 
         #split된 pdf 파일 삭제
-        delete_division_file(page_output_dir)
+        #delete_division_file(page_output_dir)
         
 if __name__ == "__main__":
     main()
