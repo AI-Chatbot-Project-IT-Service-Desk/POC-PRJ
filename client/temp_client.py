@@ -191,26 +191,35 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
         "aws_region": aws_region
     }
 
-    #store = ObjectStore(aws_url, storage_options)
-    #store.list()
+    store = ObjectStore(aws_url, storage_options)
+    print(store.list())
+
     aws_pdf_path = os.path.join(aws_url + '/', 'cesco_division_file')
     store = ObjectStore(aws_pdf_path, storage_options)
-    store.list()
+    
+    print(store.list())
 
     #원본 파일 업로드
-    store.put(filecode + '.pdf', uploaded_file)
+    if uploaded_file.closed:
+        print('[LOG] 파일이 닫혀 있습니다.')
+    else:
+        print("[LOG] 부모 파일이 열려 있습니다.")
+    
+    try:
+        uploaded_file.seek(0)
+        store.put(f'{filecode}.pdf', uploaded_file.read())
+    except Exception as e:
+        print(f"파일을 초기화 하는 도중 에러가 발생하였습니다.: {e}")
 
     for division_file in os.listdir(cesco_division_folder_path):
-        #print(os.path.join(cesco_division_folder_path + '/', division_file))
+        print(os.path.join(cesco_division_folder_path + '/', division_file))
         full_path = os.path.join(cesco_division_folder_path + '/', division_file)
         with open(full_path, 'rb') as file:
             pdf_bytes = file.read()
-        
-        #print(pdf_bytes)
 
-        store.put(division_file, pdf_bytes)
+        store.put(f"{division_file}", pdf_bytes)
     
-    store.list()
+    print("[LOG] S3 Object Store Upload를 완료하였습니다")
 
 #[20240812 강태영] 문제 벡터화 함수
 #azure-openai-text-embedding 모델
@@ -254,8 +263,6 @@ def extract_pdf_to_dataframe(uploaded_file, split_file_list):
         if int(row.font_size) == 18 :
             if row.Index == 1:
                 title = row.text
-
-                print
             else:               
                 #Embedding 진행
                 try: 
@@ -263,7 +270,6 @@ def extract_pdf_to_dataframe(uploaded_file, split_file_list):
                 except Exception as e:
                     print(e)
 
-                #print("추가정보의 상태가?", addtional)
                 #새로운 질문을 맞이했으니 dataframe에 넣어주기
                 new_row = pd.DataFrame([{'ProblemDescription': title, 
                                          'ProblemCategory': category,
@@ -325,14 +331,18 @@ def extract_pdf_to_dataframe(uploaded_file, split_file_list):
         df_final = pd.concat([df_final, new_row], ignore_index=True) 
 
     #pdf 파일 맵핑
-    df_final['SolutionDoc'] = split_file_list
 
-    #print(df_final)
+    print(df_final)
+    print("최종본의 길이", len(df_final['SolutionDoc']))
+    print("자식의 길이", split_file_list)
 
+    #df_final['SolutionDoc'] = split_file_list
+
+    print("[LOG] DataFrame successfully created.")
     return df_final
 
 #[20240812 강태영] HANA Cloud 에 Dataframe row 단위로 집어넣는 로직
-def upload_dataframe_to_hanacloud(extract_dataframe):
+def upload_dataframe_toh_hanacloud(extract_dataframe):
     #파일명이 같을 때의 경우 처리 방법 고민 필요(2024-08-12)
     with open(os.path.join(os.getcwd(), '../config/cesco-poc-hc-service-key.json')) as f:
         hana_env_c = json.load(f)
@@ -345,7 +355,7 @@ def upload_dataframe_to_hanacloud(extract_dataframe):
     cursor = cc.connection.cursor()
     cursor.execute("""SET SCHEMA GEN_AI""")
 
-    #print(extract_dataframe)
+    print("[LOG] Successfully connected to Hana Cloud")
 
     for index, row in extract_dataframe.iterrows():
         sql = '''INSERT INTO "CESCO_PROBLEMSOLUTIONS" (
@@ -361,7 +371,7 @@ def upload_dataframe_to_hanacloud(extract_dataframe):
                                                                SolutionDoc = row['SolutionDoc'],
                                                                AdditionalInfo = row['AdditionalInfo'],
                                                                VectorProblem = row['VectorProblem'])
-        #print(sql)
+        
         try:
             cursor.execute(sql)
         except Exception as e:
@@ -373,6 +383,8 @@ def upload_dataframe_to_hanacloud(extract_dataframe):
         finally:
             cursor.close()
         cc.connection.setautocommit(True)
+
+    print("[LOG] Successfully uploaded to HANA Cloud.")
 
 def delete_division_file(page_output_dir):
     if os.path.exists(page_output_dir):
@@ -400,14 +412,14 @@ def main():
         split_file_list = repeat_split_pdf(uploaded_file, page_output_dir, filecode)
         #print(split_file_list)
 
-        #Object Store S3에 업로드 하기
-        object_store_upload(uploaded_file, filecode, page_output_dir)
-
         #Upload할 DataFrame 생성
-        #extract_dataframe = extract_pdf_to_dataframe(uploaded_file, split_file_list)
+        extract_dataframe = extract_pdf_to_dataframe(uploaded_file, split_file_list)
 
         #HANA CLOUD UPLOAD
         #upload_dataframe_to_hanacloud(extract_dataframe)
+
+        #Object Store S3에 업로드 하기
+        object_store_upload(uploaded_file, filecode, page_output_dir)
 
         #split된 pdf 파일 삭제
         #delete_division_file(page_output_dir)
