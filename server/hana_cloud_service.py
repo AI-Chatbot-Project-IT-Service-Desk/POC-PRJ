@@ -13,7 +13,7 @@ from hana_ml.dataframe import create_dataframe_from_pandas
 def update_FileNamesDB(upload_file_name):
     result = "" 
 
-    with open(os.path.join(os.getcwd(), '../config/cesco-poc-hc-service-key.json')) as f:
+    with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
         hana_env_c = json.load(f)
         port_c = hana_env_c['port']
         user_c = hana_env_c['user']
@@ -58,7 +58,7 @@ def update_FileNamesDB(upload_file_name):
 #[20240812 강태영] HANA Cloud 에 Dataframe row 단위로 집어넣는 로직
 def upload_dataframe_to_hanacloud(extract_dataframe):
     #파일명이 같을 때의 경우 처리 방법 고민 필요(2024-08-12)
-    with open(os.path.join(os.getcwd(), '../config/cesco-poc-hc-service-key.json')) as f:
+    with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
         hana_env_c = json.load(f)
         port_c = hana_env_c['port']
         user_c = hana_env_c['user']

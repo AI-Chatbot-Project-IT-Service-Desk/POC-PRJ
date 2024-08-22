@@ -7,7 +7,7 @@ import json
 from object_store import ObjectStore
 
 def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
-    s3_configure_path = '../config/s3-service-key-cesco1-interim.txt'
+    s3_configure_path = './config/s3-service-key-cesco1-interim.txt'
 
     with open(os.path.join(os.getcwd(), s3_configure_path)) as f:
         os_env_c = json.load(f)
