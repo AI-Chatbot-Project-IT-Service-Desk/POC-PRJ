@@ -195,10 +195,11 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
     #store.list()
     aws_pdf_path = os.path.join(aws_url + '/', 'cesco_division_file')
     store = ObjectStore(aws_pdf_path, storage_options)
-    store.list()
+    print(store.list())
 
     #원본 파일 업로드
-    store.put(filecode + '.pdf', uploaded_file)
+    uploaded_file.seek(0)
+    store.put(filecode + '.pdf', uploaded_file.read())
 
     for division_file in os.listdir(cesco_division_folder_path):
         #print(os.path.join(cesco_division_folder_path + '/', division_file))
@@ -404,13 +405,13 @@ def main():
         object_store_upload(uploaded_file, filecode, page_output_dir)
 
         #Upload할 DataFrame 생성
-        #extract_dataframe = extract_pdf_to_dataframe(uploaded_file, split_file_list)
+        extract_dataframe = extract_pdf_to_dataframe(uploaded_file, split_file_list)
 
         #HANA CLOUD UPLOAD
-        #upload_dataframe_to_hanacloud(extract_dataframe)
+        upload_dataframe_to_hanacloud(extract_dataframe)
 
         #split된 pdf 파일 삭제
-        #delete_division_file(page_output_dir)
+        delete_division_file(page_output_dir)
         
 if __name__ == "__main__":
     main()
