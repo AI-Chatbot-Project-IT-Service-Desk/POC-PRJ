@@ -56,6 +56,7 @@ def show_qna_management_content():
     
     # 파일 업로드
     uploaded_file = st.file_uploader("xlsx 파일 업로드", type="xlsx")
+    
 
     if uploaded_file:
         try:
