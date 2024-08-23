@@ -5,6 +5,9 @@ from importlib import import_module
 ADMIN_PASSWORD = "0000"  
 
 def main():
+    #사이드바 상단에 이미지 추가
+    st.sidebar.image("path/to/your/image.png", use_column_width=True)
+
     # 세션 상태 초기화
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
