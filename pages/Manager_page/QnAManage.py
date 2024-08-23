@@ -100,7 +100,7 @@ def run():
     with col3:
         form_download_button = st.button("양식 다운로드", key="form_download")
         st.markdown('<div id="form_download_button"></div>', unsafe_allow_html=True)
-
+    
     # 파일 업로드 처리
     if st.session_state.show_uploader:
 
@@ -113,7 +113,7 @@ def run():
                 st.warning("지정된 폼으로 작성된 파일이 아닙니다.", icon="⚠️")
             else:
                 upload_file_name = (uploaded_file.name).split(".pdf")[0] #업로드한 파일 이름 (확장자 제거)
-                progress_text = "Data Uploading.. Please Wait"
+                progress_text = "💻Preparing to upload data..."
                 my_bar = st.progress(0.0, text=progress_text)
 
                 page_output_dir = "./data/cesco_division_file"
@@ -126,26 +126,27 @@ def run():
 
                 #자식 PDF 파일 생성
                 ps.repeat_split_pdf(uploaded_file, page_output_dir, filecode)
-                my_bar.progress(0.3, text=progress_text)
+                my_bar.progress(0.3, text="📃Generating a child PDF from the original file...")
 
                 #Upload Object Store S3
                 oss.object_store_upload(uploaded_file, str(filecode), page_output_dir)
-                my_bar.progress(0.4, text=progress_text)
+                my_bar.progress(0.4, text="📦Uploading a file to the Cloud storage...")
 
                 #Upload할 DataFrame 생성
                 extract_dataframe = ps.extreact_pdf_to_dataframe(page_output_dir)
-                my_bar.progress(0.8, text=progress_text)
+                my_bar.progress(0.8, text="💽Creating a DataFrame...")
 
                 #HANA CLOUD UPLOAD
                 hcs.upload_dataframe_to_hanacloud(extract_dataframe)
-                my_bar.progress(0.9, text=progress_text)
+                my_bar.progress(0.9, text="📤Uploading data to the Cloud storage...")
 
                 #split된 pdf 파일 삭제
                 ps.delete_division_file(page_output_dir)
-                my_bar.progress(1.0, text=progress_text)
+                my_bar.progress(1.0, text="😊The file upload is almost complete. Please wait a moment.")
 
                 my_bar.empty()            
                 st.success(f"파일 업로드 성공: {uploaded_file.name}")
+                st.empty()
 
     df['생성 날짜'] = pd.to_datetime(df['생성 날짜'], format='%Y.%m.%d')
 

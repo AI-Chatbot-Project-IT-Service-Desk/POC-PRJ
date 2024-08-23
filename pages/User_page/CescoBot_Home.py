@@ -45,7 +45,7 @@ def run():
             st.markdown(message["content"])
 
     # 사용자 입력 받기
-    if prompt := st.chat_input("What is up?"):
+    if prompt := st.chat_input("What is up?", key="chatprompt"):
         # 사용자 메시지를 채팅 기록에 추가
         st.session_state.messages.append({"role": "user", "content": prompt})
     

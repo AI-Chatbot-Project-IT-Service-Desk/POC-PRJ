@@ -4,6 +4,7 @@ from importlib import import_module
 # 관리자 비밀번호 설정
 ADMIN_PASSWORD = "0000"  
 
+
 def main():
     #사이드바 상단에 이미지 추가
     st.sidebar.image("path/to/your/image.png", use_column_width=True)
