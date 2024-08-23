@@ -13,3 +13,4 @@ ipython
 pymupdf
 object-store-python
 streamlit
+sentence_transformers
