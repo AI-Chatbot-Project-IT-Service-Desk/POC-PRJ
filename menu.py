@@ -9,6 +9,7 @@ def user_menu():
 def admin_menu():
     #st.sidebar.page_link("pages/user_CescoBotHome.py", label="🤖 채팅 시작하기")
     #st.sidebar.page_link("pages/user_ManualList.py", label="📃 매뉴얼 열람하기")
+    st.sidebar.page_link("pages/admin_UploadData.py", label="🗃️ 매뉴얼 업로드 페이지")
     st.sidebar.page_link("pages/admin_OriginDataManage.py", label="📀 매뉴얼 원본 데이터 관리")
     st.sidebar.page_link("pages/admin_SplitDataManage.py", label="💿 매뉴얼 데이터 관리",)
     st.sidebar.page_link("pages/admin_UnAnswerd.py", label="📊 미응답 데이터 관리")

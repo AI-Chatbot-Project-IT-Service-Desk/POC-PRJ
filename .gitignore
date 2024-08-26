@@ -2,3 +2,5 @@
 
 /myvenv/
 /config/
+
+.pyc
