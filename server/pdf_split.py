@@ -8,9 +8,9 @@ from pathlib import Path
 import pandas as pd
 from gen_ai_hub.proxy.native.openai import embeddings
 import shutil
-from transformers import AutoTokenizer, AutoModel
-import torch
-import tokenizers
+# from transformers import AutoTokenizer, AutoModel
+# import torch
+# import tokenizers
 
 #[20240802 강태영] PDF의 모든 page별 content를 추출하는 함수
 def extract_text_from_all_pages(type , uploaded_file):
@@ -67,6 +67,17 @@ def check_form(uploaded_file):
             return True
     
     return False
+
+#[20240827 강태영] FileNames 테이블에 카테고리 저장 추가
+def extract_file_category(uploaded_file):
+    uploaded_file.seek(0)
+    doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
+    page = doc.load_page(0)
+    content = extract_content_from_page(page)
+
+    result = content[0]['text']
+
+    return result
 
 #[20240802 강태영] 제목(문제, font 18)을 기준으로 split할 페이지 추출 ex) [{'title': 'PDF 파일 열람 오류', 'page_num': [1, 2]]
 def child_page_list(uploaded_file):
@@ -155,17 +166,17 @@ def get_embedding_gen_ai(input, model = "dc872f9eef04c31a") -> str:
     return response.data[0].embedding
 
 #[20240822 강태영] Huggingface 벡터화 함수
-tokenizer = AutoTokenizer.from_pretrained("jhgan/ko-sroberta-multitask")
-model = AutoModel.from_pretrained("jhgan/ko-sroberta-multitask")
-def get_embedding_huggingface(input: str) -> torch.Tensor:
-    inputs = tokenizer(input, return_tensors="pt")
-    with torch.no_grad():
-        outputs = model(**inputs)
-    embedding_tensor = outputs.last_hidden_state.mean(dim=1)
+# tokenizer = AutoTokenizer.from_pretrained("jhgan/ko-sroberta-multitask")
+# model = AutoModel.from_pretrained("jhgan/ko-sroberta-multitask")
+# def get_embedding_huggingface(input: str) -> torch.Tensor:
+#     inputs = tokenizer(input, return_tensors="pt")
+#     with torch.no_grad():
+#         outputs = model(**inputs)
+#     embedding_tensor = outputs.last_hidden_state.mean(dim=1)
     
-    # Convert the embedding tensor to a list
-    embedding_list = embedding_tensor.squeeze().tolist()
-    return embedding_list
+#     # Convert the embedding tensor to a list
+#     embedding_list = embedding_tensor.squeeze().tolist()
+#     return embedding_list
 
 #[20240819 강태영] 자식 PDF → PROBLEMSOLUTIONS DB의 ROW로 생성 → HANA CLOUD UPDATE
 def extreact_pdf_to_dataframe(page_output_dir):

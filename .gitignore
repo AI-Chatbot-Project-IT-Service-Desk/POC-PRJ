@@ -3,4 +3,6 @@
 /myvenv/
 /config/
 
-.pyc
+*.pyc
+
+/__pycache__/

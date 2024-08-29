@@ -41,32 +41,35 @@ if uploaded_file is not None:
             os.makedirs(page_output_dir, exist_ok=True)
             my_bar.progress(0.1, text=progress_text)
 
-            #Object Store S3 한글 미지원 이슈로 인한 파일 이름 코드화 
-            filecode = hcs.update_FileNamesDB(upload_file_name)
+            #[20240827 강태영] 원본 파일 카테고리 추가
+            file_category = ps.extract_file_category(uploaded_file)
+
+            #Object Store S3 한글 미지원 이슈로 인한 파일 이름 코드화(원본 데이터 저장)
+            filecode = hcs.update_FileNamesDB(file_category)
             my_bar.progress(0.2, text=progress_text)
                         
-            #자식 PDF 파일 생성
+            # #자식 PDF 파일 생성
             my_bar.progress(0.3, text="📃Generating a child PDF from the original file...")
             ps.repeat_split_pdf(uploaded_file, page_output_dir, filecode)
 
-            #Upload Object Store S3
+            # #Upload Object Store S3
             my_bar.progress(0.4, text="📦Uploading a file to the Cloud storage...")
             print("[LOG] filecode type", type(filecode))
             print("[LOG] filcdoe", filecode)
             oss.object_store_upload(uploaded_file, str(filecode), page_output_dir)
 
-            #Upload할 DataFrame 생성
+            # #Upload할 DataFrame 생성
             my_bar.progress(0.8, text="💽Creating a DataFrame...")
             extract_dataframe = ps.extreact_pdf_to_dataframe(page_output_dir)
 
-            #HANA CLOUD UPLOAD
+            # #HANA CLOUD UPLOAD
             my_bar.progress(0.9, text="📤Uploading data to the Cloud storage...")
-            hcs.upload_dataframe_to_hanacloud(extract_dataframe)
+            hcs.upload_dataframe_to_hanacloud(extract_dataframe, filecode)
 
-            #Split된 pdf 파일 삭제
+            # #Split된 pdf 파일 삭제
             my_bar.progress(1.0, text="😊The file upload is almost complete. Please wait a moment.")
             ps.delete_division_file(page_output_dir)
 
-            # my_bar.empty()            
+            # # my_bar.empty()            
             st.success(f"파일 업로드 성공: {uploaded_file.name}")
             st.empty()

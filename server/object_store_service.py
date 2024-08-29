@@ -30,7 +30,7 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
     aws_pdf_path = os.path.join(aws_url + '/', 'cesco_division_file')
     store = ObjectStore(aws_pdf_path, storage_options)
     
-    #print("[store path]", store.list())
+    print("[store path]", store.list())
 
     # if uploaded_file.closed:
     #     print('[LOG] 파일이 닫혀 있습니다.')
@@ -54,3 +54,7 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
         store.put(str(division_file), pdf_bytes)
     
     print("[SUCCESS] S3 Object Store Upload를 완료하였습니다")
+
+#[20240828 강태영] PDF 파일 저장 및 열기 
+def open_pdf_file(file_name):
+    print("메타메타")
