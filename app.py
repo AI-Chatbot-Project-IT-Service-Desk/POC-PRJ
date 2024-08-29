@@ -4,6 +4,7 @@ from importlib import import_module
 # 관리자 비밀번호 설정
 ADMIN_PASSWORD = "0000"  
 
+
 def main():
     # 세션 상태 초기화
     if 'authenticated' not in st.session_state:

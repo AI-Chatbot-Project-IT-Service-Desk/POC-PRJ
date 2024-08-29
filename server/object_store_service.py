@@ -40,7 +40,7 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
     #원본 파일 업로드
     try:
         uploaded_file.seek(0)
-        store.put(f'{filecode}.pdf', uploaded_file.read())
+        store.put(str(filecode) + '.pdf', uploaded_file.read())
     except Exception as e:
         print(f"파일을 초기화 하는 도중 에러가 발생하였습니다.: {e}")
 
@@ -51,6 +51,10 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
         with open(full_path, 'rb') as file:
             pdf_bytes = file.read()
 
-        store.put(f"{division_file}", pdf_bytes)
+        store.put(str(division_file), pdf_bytes)
     
     print("[SUCCESS] S3 Object Store Upload를 완료하였습니다")
+
+#[20240828 강태영] PDF 파일 저장 및 열기 
+def open_pdf_file(file_name):
+    print("메타메타")

@@ -416,13 +416,13 @@ def main():
         extract_dataframe = extract_pdf_to_dataframe(uploaded_file, split_file_list)
 
         #HANA CLOUD UPLOAD
-        #upload_dataframe_to_hanacloud(extract_dataframe)
+        upload_dataframe_to_hanacloud(extract_dataframe)
 
         #Object Store S3에 업로드 하기
         object_store_upload(uploaded_file, filecode, page_output_dir)
 
         #split된 pdf 파일 삭제
-        #delete_division_file(page_output_dir)
+        delete_division_file(page_output_dir)
         
 if __name__ == "__main__":
     main()
