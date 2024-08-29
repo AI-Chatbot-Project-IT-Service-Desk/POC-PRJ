@@ -70,6 +70,6 @@ if uploaded_file is not None:
             my_bar.progress(1.0, text="😊The file upload is almost complete. Please wait a moment.")
             ps.delete_division_file(page_output_dir)
 
-            # # my_bar.empty()            
+            my_bar.empty()            
             st.success(f"파일 업로드 성공: {uploaded_file.name}")
             st.empty()
