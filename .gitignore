@@ -2,3 +2,6 @@
 
 /myvenv/
 /config/
+
+*.pyc
+__pycache__/
