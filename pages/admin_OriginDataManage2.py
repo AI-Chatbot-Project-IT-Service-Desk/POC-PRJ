@@ -48,7 +48,6 @@ event = st.dataframe(
 )
 
 selected_row = event.selection
-print("메타몽", selected_row['rows'])
 
 for i in selected_row['rows']:
     print(original_pdf_df.iloc[i, 2])
