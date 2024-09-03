@@ -52,7 +52,7 @@ def run():
         # 채팅 메시지 컨테이너에 사용자 메시지 표시
         with st.chat_message("user"):
             st.markdown(prompt)
-
+            
         # 채팅 메시지 컨테이너에 어시스턴트 응답 표시
         with st.chat_message("assistant"):
             response_generator_obj = response_generator()
