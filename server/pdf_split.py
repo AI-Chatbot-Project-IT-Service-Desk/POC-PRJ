@@ -242,7 +242,9 @@ def extreact_pdf_to_dataframe(page_output_dir):
                 addtional += row.text
 
         try: 
-            title_vector = get_embedding_gen_ai(title)
+            #[20240830 강태영] 제목만 벡터화 하지 않고 제목과 키워드도 같이 벡터화한다
+            vector_text = f"keyword: {keyword}, content: {title}"
+            title_vector = get_embedding_gen_ai(vector_text)
         except Exception as e:
             print(e)
 

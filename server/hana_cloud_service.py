@@ -8,18 +8,34 @@ import pandas as pd
 import hana_ml
 from hana_ml import ConnectionContext
 from hana_ml.dataframe import create_dataframe_from_pandas
+from gen_ai_hub.proxy.native.openai import embeddings
+from langchain import PromptTemplate
+from gen_ai_hub.proxy.langchain.openai import ChatOpenAI
+from gen_ai_hub.proxy.core.proxy_clients import get_proxy_client
+proxy_client = get_proxy_client('gen-ai-hub')
+
+with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
+    hana_env_c = json.load(f)
+    port_c = hana_env_c['port']
+    user_c = hana_env_c['user']
+    host_c = hana_env_c['host']
+    pwd_c = hana_env_c['pwd']
+
+cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
+cursor = cc.connection.cursor()
+cursor.execute("""SET SCHEMA GEN_AI""")
 
 def is_aready_exist_pdf_file(upload_file_name):
-    with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
-        hana_env_c = json.load(f)
-        port_c = hana_env_c['port']
-        user_c = hana_env_c['user']
-        host_c = hana_env_c['host']
-        pwd_c = hana_env_c['pwd']
+    # with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
+    #     hana_env_c = json.load(f)
+    #     port_c = hana_env_c['port']
+    #     user_c = hana_env_c['user']
+    #     host_c = hana_env_c['host']
+    #     pwd_c = hana_env_c['pwd']
 
-    cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
-    cursor = cc.connection.cursor()
-    cursor.execute("""SET SCHEMA GEN_AI""")
+    # cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
+    # cursor = cc.connection.cursor()
+    # cursor.execute("""SET SCHEMA GEN_AI""")
 
     sql = '''SELECT COUNT(*)
              FROM (	SELECT "ProblemCategory"
@@ -42,16 +58,16 @@ def is_aready_exist_pdf_file(upload_file_name):
 def update_FileNamesDB(file_category):
     result = "" 
 
-    with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
-        hana_env_c = json.load(f)
-        port_c = hana_env_c['port']
-        user_c = hana_env_c['user']
-        host_c = hana_env_c['host']
-        pwd_c = hana_env_c['pwd']
+    # with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
+    #     hana_env_c = json.load(f)
+    #     port_c = hana_env_c['port']
+    #     user_c = hana_env_c['user']
+    #     host_c = hana_env_c['host']
+    #     pwd_c = hana_env_c['pwd']
 
-    cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
-    cursor = cc.connection.cursor()
-    cursor.execute("""SET SCHEMA GEN_AI""")
+    # cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
+    # cursor = cc.connection.cursor()
+    # cursor.execute("""SET SCHEMA GEN_AI""")
 
     #파일 명이 기존에 이미 저장되어 있는지 없는지 판단
     sql1 = '''SELECT "Code" 
@@ -89,16 +105,16 @@ def update_FileNamesDB(file_category):
 #[20240812 강태영] HANA Cloud 에 Dataframe row 단위로 집어넣는 로직
 def upload_dataframe_to_hanacloud(extract_dataframe, filecode):
     #파일명이 같을 때의 경우 처리 방법 고민 필요(2024-08-12)
-    with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
-        hana_env_c = json.load(f)
-        port_c = hana_env_c['port']
-        user_c = hana_env_c['user']
-        host_c = hana_env_c['host']
-        pwd_c = hana_env_c['pwd']
+    # with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
+    #     hana_env_c = json.load(f)
+    #     port_c = hana_env_c['port']
+    #     user_c = hana_env_c['user']
+    #     host_c = hana_env_c['host']
+    #     pwd_c = hana_env_c['pwd']
 
-    cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
-    cursor = cc.connection.cursor()
-    cursor.execute("""SET SCHEMA GEN_AI""")
+    # cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
+    # cursor = cc.connection.cursor()
+    # cursor.execute("""SET SCHEMA GEN_AI""")
 
     print("[LOG] Successfully connected to Hana Cloud")
 
@@ -134,16 +150,16 @@ def upload_dataframe_to_hanacloud(extract_dataframe, filecode):
 
 #[20240828 강태영] CESCO_FILENAMES(원본 테이블) 조회
 def select_all_filenames_table():
-    with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
-        hana_env_c = json.load(f)
-        port_c = hana_env_c['port']
-        user_c = hana_env_c['user']
-        host_c = hana_env_c['host']
-        pwd_c = hana_env_c['pwd']
+    # with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
+    #     hana_env_c = json.load(f)
+    #     port_c = hana_env_c['port']
+    #     user_c = hana_env_c['user']
+    #     host_c = hana_env_c['host']
+    #     pwd_c = hana_env_c['pwd']
 
-    cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
-    cursor = cc.connection.cursor()
-    cursor.execute("""SET SCHEMA GEN_AI""")
+    # cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
+    # cursor = cc.connection.cursor()
+    # cursor.execute("""SET SCHEMA GEN_AI""")
 
     sql1 = '''SELECT "FileName", "CreateDate", CONCAT("Code", '.pdf') FROM gen_ai.cesco_filenames;'''
         
@@ -151,3 +167,89 @@ def select_all_filenames_table():
     df_result = hdf.collect()    
 
     return df_result
+
+#[20240830 강태영] QNA 테이블 조회
+def select_all_problemsolutions_table():
+    # with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
+    #     hana_env_c = json.load(f)
+    #     port_c = hana_env_c['port']
+    #     user_c = hana_env_c['user']
+    #     host_c = hana_env_c['host']
+    #     pwd_c = hana_env_c['pwd']
+
+    # cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
+    # cursor = cc.connection.cursor()
+    # cursor.execute("""SET SCHEMA GEN_AI""")
+
+    sql1 = '''SELECT "ProblemCategory", "ProblemKeyword", "ProblemDescription", "CreateDate" FROM gen_ai.cesco_problemsolutions;'''
+        
+    hdf = cc.sql(sql1)
+    df_result = hdf.collect()    
+
+    return df_result
+
+#[20240902 강태영] 임베딩
+def get_embedding(input, model="dc872f9eef04c31a") -> str:
+    response = embeddings.create(
+        deployment_id = model,
+        input = input
+    )
+    return response.data[0].embedding
+
+#[20240902 강태영] 벡터서치
+def run_vector_search(query: str, metric="COSINE_SIMILARITY", k=5):
+    # with open(os.path.join(os.getcwd(), '../config/cesco-poc-hc-service-key.json')) as f:
+    #     hana_env_c = json.load(f)
+    #     port_c = hana_env_c['port']
+    #     user_c = hana_env_c['user']
+    #     host_c = hana_env_c['host']
+    #     pwd_c = hana_env_c['pwd']
+
+    # cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
+    # cursor = cc.connection.cursor()
+    # cursor.execute("""SET SCHEMA GEN_AI""")
+
+    if metric == 'L2DISTANCE':
+        sort = 'ASC'
+        col = 'L2D_SIM'
+    elif metric == 'COSINE_SIMILARITY':
+        sort = 'DESC'
+        col = 'COS_SIM'
+
+    query_vector = get_embedding(query)
+
+    sql = '''SELECT TOP {k} "ProblemDescription","ProblemCategory", "ProblemKeyword",
+    "Solution","SolutionDoc", "AdditionalInfo",
+    "Code", "{metric}"("VectorProblem", TO_REAL_VECTOR('{qv}'))
+    AS "{col}", "CreateDate", "UpdateDate"
+    FROM "CESCO_PROBLEMSOLUTIONS"
+    ORDER BY "{col}" {sort}
+    '''.format(k=k, metric = metric, qv = query_vector, sort=sort, col=col)
+
+    hdf = cc.sql(sql)
+    df_context = hdf.collect()
+
+    return df_context
+
+#[20240902 강태영] LangChain
+promptTemplate_fstring = """
+You are a friendly and helpful AI assistant.
+Based on the provided context, please answer the user's question in a clear and polite manner, ensuring the response is easy to understand. 
+Make sure to include all the content from the provided context and do not omit any details. 
+If there is information under "etc", include that additional information in your answer as well.
+Context:
+{context}
+Question:
+{query}
+Answer:
+"""
+
+promptTemplate = PromptTemplate.from_template(promptTemplate_fstring)
+
+def ask_llm(query: str, k1_context: pd.Series) -> str:
+    context = f"""category: {k1_context["ProblemCategory"]}, keyword: {k1_context["ProblemKeyword"]}, content: {k1_context["ProblemDescription"]}, {k1_context["Solution"]}, etc: {k1_context["AdditionalInfo"]}"""
+    prompt = promptTemplate.format(query=query, context=context)
+    #print('\nAsking LLM...')
+    llm = ChatOpenAI(deployment_id="d03974e89ef130ad", temperature=0)
+    response = llm.predict(prompt)
+    return response
