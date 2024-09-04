@@ -9,7 +9,7 @@ import hana_ml
 from hana_ml import ConnectionContext
 from hana_ml.dataframe import create_dataframe_from_pandas
 from gen_ai_hub.proxy.native.openai import embeddings
-from langchain import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from gen_ai_hub.proxy.langchain.openai import ChatOpenAI
 from gen_ai_hub.proxy.core.proxy_clients import get_proxy_client
 proxy_client = get_proxy_client('gen-ai-hub')
@@ -249,7 +249,37 @@ promptTemplate = PromptTemplate.from_template(promptTemplate_fstring)
 def ask_llm(query: str, k1_context: pd.Series) -> str:
     context = f"""category: {k1_context["ProblemCategory"]}, keyword: {k1_context["ProblemKeyword"]}, content: {k1_context["ProblemDescription"]}, {k1_context["Solution"]}, etc: {k1_context["AdditionalInfo"]}"""
     prompt = promptTemplate.format(query=query, context=context)
-    #print('\nAsking LLM...')
+    print('\nAsking LLM...')
     llm = ChatOpenAI(deployment_id="d03974e89ef130ad", temperature=0)
-    response = llm.predict(prompt)
-    return response
+    response = llm.invoke(prompt)
+    return response.content
+
+#[20240904 강태영]
+def upload_unanswered_data(prompt: str):
+
+    #미응답 테이블에 똑같은 질문이 들어 있다면 INSERT 하지 않는다
+    sql = '''SELECT count(*) FROM gen_ai.cesco_unansweredquestions
+            WHERE "QuestionText" = '{text}' '''.format(text=prompt)
+    
+    hdf = cc.sql(sql)
+    df_result = hdf.collect()
+
+    is_exist = df_result.iloc[0]["COUNT(*)"]
+
+    if int(is_exist) == 0: 
+        sql_command = '''INSERT INTO "CESCO_UNANSWEREDQUESTIONS" (
+        "QuestionID", "QuestionText", "Status", "StatusUpdateDate", "DownloadDate", "CreateDate")
+        VALUES (GEN_AI.UNANSWER_NO.NEXTVAL, '{text}', '미처리', CURRENT_DATE, CURRENT_DATE, CURRENT_DATE)'''.format(text=prompt)
+
+        try:
+            cursor.execute(sql_command)
+        except Exception as e:
+            cc.connection.rollback()
+            print("An error occurred:", e)
+
+        try:
+            cc.connection.commit()
+        finally:
+            cursor.close()
+
+        cc.connection.setautocommit(True)
