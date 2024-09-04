@@ -31,15 +31,13 @@ with col2:
 if 'selected_files' not in st.session_state:
     st.session_state.selected_files = []
 
-<<<<<<< HEAD
 # 필터 조건 확인
 has_filters = any([
     period_filter is not None,
     category_filter != "전체"
 ])
-=======
-selected_row = event.selection
->>>>>>> 4954a7d8bf97eaee329e48466c65bf42f13dbf6d
+
+#selected_row = event.selection
 
 # 유효성 검사 및 필터 적용
 invalid_input = False
