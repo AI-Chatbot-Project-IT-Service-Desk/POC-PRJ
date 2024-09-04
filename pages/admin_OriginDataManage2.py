@@ -37,8 +37,6 @@ has_filters = any([
     category_filter != "전체"
 ])
 
-#selected_row = event.selection
-
 # 유효성 검사 및 필터 적용
 invalid_input = False
 if period_filter:
@@ -67,6 +65,15 @@ else:
         filtered_df = original_pdf_df
 
     # 각 행에 대한 버튼 추가
+    col1, col2, col3 = st.columns([2, 2, 1])
+    
+    with col1:
+        st.write("카테고리")  # 첫 행에 '카테고리' 문구 배치
+    with col2:
+        st.write("생성날짜")  # 첫 행에 '생성날짜' 문구 배치
+    with col3:
+        st.write("상세보기")  # 첫 행에 '상세보기' 문구 배치
+
     for idx, row in filtered_df.iterrows():
         col1, col2, col3 = st.columns([2, 2, 1])
         with col1:
