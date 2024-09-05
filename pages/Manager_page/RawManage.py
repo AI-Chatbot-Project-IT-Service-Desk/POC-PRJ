@@ -13,7 +13,7 @@ from server import pdf_split as ps
 def run():
     st.title("원본 데이터 관리")
     st.write("전산 시스템 사용 매뉴얼의 원본 데이터 입니다 📋")
-    
+
     # 수직 간격을 줄이기 위해 hr 스타일 변경
     st.markdown(
         """
@@ -80,13 +80,35 @@ def run():
             background-color: #707070; /* 헤더 배경색 */
             color: #FFFFFF; /* 흰색 폰트 */
         }
+        /* 버튼 스타일 수정 */
+        .stButton > button {
+            width: 117%; /* 버튼 가로 너비를 100%로 설정 */
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+        }
+        .stButton > button:hover {
+            background-color: #0056b3;
+        }
+        .stButton > button:active {
+            background-color: #004085;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
+        }
+        .button-spacing {
+            margin: 30px; /* 버튼 간 간격 추가 */
+        }
         </style>
         """,
         unsafe_allow_html=True
     )
 
     # 버튼을 오른쪽으로 정렬
-    col1, col2, col3 = st.columns([3, 1, 1])  # 버튼을 오른쪽으로 밀기 위해 컬럼 너비 조정
+    col1, col2, col3, col4 = st.columns([3, 1, 1, 1])  # 버튼을 오른쪽으로 밀기 위해 컬럼 너비 조정
     with col1:
         st.write("")  # 버튼을 오른쪽으로 밀기 위한 빈 칸
     with col2:
@@ -99,6 +121,10 @@ def run():
     with col3:
         download_button = st.button("양식 다운로드", key="download")
         st.markdown('<div id="download_button"></div>', unsafe_allow_html=True)
+    
+    with col4:
+        delete_button = st.button("삭제", key="delete")
+        st.markdown('<div id="delete_button"></div>', unsafe_allow_html=True)
 
     # 파일 업로드 처리
     if st.session_state.show_uploader:
@@ -150,15 +176,15 @@ def run():
 
     # 헤더 행에 대한 필터
     st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)  # 추가된 간격
-    col4, col5, col6 = st.columns(3)
+    col5, col6, col7 = st.columns(3)
 
-    with col4:
-        period_filter = st.date_input("기간", key="period_filter_1", value=None)  # 고유한 키 사용
     with col5:
-        category_filter = st.selectbox("카테고리", options=["전체"] + list(df['카테고리'].unique()), key="category_filter_1")  # 고유한 키 사용
+        period_filter = st.date_input("기간", key="period_filter_1", value=None)  # 고유한 키 사용
     with col6:
+        category_filter = st.selectbox("카테고리", options=["전체"] + list(df['카테고리'].unique()), key="category_filter_1")  # 고유한 키 사용
+    with col7:
         issue_filter = st.text_input("파일명", value="", placeholder="파일명을 검색하세요", key="issue_filter_1")  # 고유한 키 사용
-
+    
     # 필터 조건 확인
     has_filters = any([
         period_filter is not None,

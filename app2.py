@@ -12,4 +12,5 @@ if 'authenticated' not in st.session_state:
 st.session_state._role = st.session_state.role
 
 menu()
+
 st.switch_page("pages/user_CescoBotHome.py")
