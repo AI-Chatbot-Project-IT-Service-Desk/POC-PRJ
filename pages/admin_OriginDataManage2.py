@@ -73,7 +73,7 @@ else:
         st.write("생성날짜")  # 첫 행에 '생성날짜' 문구 배치
     with col3:
         st.write("상세보기")  # 첫 행에 '상세보기' 문구 배치
-
+v 
     for idx, row in filtered_df.iterrows():
         col1, col2, col3 = st.columns([2, 2, 1])
         with col1:
