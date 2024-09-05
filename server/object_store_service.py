@@ -1,7 +1,3 @@
-'''
-작성일: 2024-08-19
-설명: object store s3 원본파일, split된 자식 파일 upload 
-'''
 import os
 import json
 from object_store import ObjectStore
@@ -29,6 +25,8 @@ aws_pdf_path = os.path.join(aws_url + '/', 'cesco_division_file')
 store = ObjectStore(aws_pdf_path, storage_options)
     
 #print("[store path]", store.list())
+
+print("[START] SAP Object Store S3 Connect Success")
 
 def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
     # s3_configure_path = './config/s3-service-key-cesco1-interim.txt'
@@ -80,7 +78,10 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
     print("[SUCCESS] S3 Object Store Upload를 완료하였습니다")
 
 #[20240828 강태영] PDF 파일 저장 및 열기 
-def open_pdf_file(file_code, file_name):
+def open_pdf_file(file_code, file_name, type):
+    #type [origin, split]
+
+    print("[GET] PDF 파일", type)
     pdf_byte_data = store.get(file_code)
 
     # print(pdf_byte_data)
@@ -95,9 +96,13 @@ def open_pdf_file(file_code, file_name):
     
     #[20240903 강태영]
     #download_path는 카테고리 + 번호 조합으로 정한다
-    extract_num = file_code.split(sep='_')[1]
-
-    download_path = f"{file_name}_{extract_num}"
+    if type == "split":
+        extract_num = file_code.split(sep='_')[1]
+        download_path = file_name + "_" + extract_num
+    elif type == "origin":
+        download_path = file_name+".pdf"
+    
+    print("download_path", download_path)
 
     with open(download_path, "wb") as f:
         pdf_writer.write(f)

@@ -17,7 +17,7 @@ st.title("매뉴얼 원본 데이터 관리 페이지")
 original_pdf_df = hcs.select_all_filenames_table()
 
 # DataFrame 이름 지정
-original_pdf_df.columns = ["파일명", "생성날짜", "저장파일명"]
+original_pdf_df.columns = ["파일명", "생성날짜", "코드명"]
 
 # 사용자 입력 필터
 col1, col2 = st.columns(2)
@@ -81,12 +81,14 @@ else:
         with col2:
             st.write(row['생성날짜'])
         with col3:
-            if st.button("매뉴얼 확인", key=f"button_{idx}"):
-                # Reset the selected_files list and add the current file info
-                st.session_state.selected_files = [{
-                    "파일명": row['파일명'],
-                    "생성날짜": row['생성날짜']
-                }]
+            #[20240905 강태영] 상세보기 연결
+            opf = oss.open_pdf_file(row['코드명'], row['파일명'], "origin")
+
+            st.download_button(label="매뉴얼 확인", 
+                                key=f"button_{idx}",
+                                data = opf['data'],
+                                file_name=opf['file_name'],
+                                mime='application/octet-stream')
 
     # 선택된 파일 리스트 표시
     if st.session_state.selected_files:

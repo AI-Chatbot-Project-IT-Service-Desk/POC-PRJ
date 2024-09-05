@@ -4,5 +4,5 @@ from menu import menu_with_redirect
 # Redirect to app.py if not logged in, otherwise show the navigation menu
 menu_with_redirect()
 
-st.title("미응답 데이터 관리 페이지")
+st.title("무응답 데이터 관리 페이지")
 st.markdown(f"You are currently logged with the role of {st.session_state.role}.")
