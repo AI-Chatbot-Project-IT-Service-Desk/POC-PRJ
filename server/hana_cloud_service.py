@@ -25,6 +25,8 @@ cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c,
 cursor = cc.connection.cursor()
 cursor.execute("""SET SCHEMA GEN_AI""")
 
+print("[START] HANA CLOUD DB Connect Success")
+
 def is_aready_exist_pdf_file(upload_file_name):
     # with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
     #     hana_env_c = json.load(f)
@@ -229,6 +231,8 @@ def run_vector_search(query: str, metric="COSINE_SIMILARITY", k=5):
     hdf = cc.sql(sql)
     df_context = hdf.collect()
 
+    print("[LOG] GET K5 IS SUCCESS")
+    
     return df_context
 
 #[20240902 강태영] LangChain
@@ -251,10 +255,12 @@ def ask_llm(query: str, k1_context: pd.Series) -> str:
     prompt = promptTemplate.format(query=query, context=context)
     print('\nAsking LLM...')
     llm = ChatOpenAI(deployment_id="d03974e89ef130ad", temperature=0)
+
     response = llm.invoke(prompt)
+    print("[LOG] 답변 생성 완료")
     return response.content
 
-#[20240904 강태영]
+#[20240904 강태영] 무응답 답변 등록 
 def upload_unanswered_data(prompt: str):
 
     #미응답 테이블에 똑같은 질문이 들어 있다면 INSERT 하지 않는다
@@ -283,3 +289,14 @@ def upload_unanswered_data(prompt: str):
             cursor.close()
 
         cc.connection.setautocommit(True)
+
+#[20240905 강태영] 매뉴얼 데이터 전체 조회
+def get_menual_data():
+
+    sql = '''SELECT "ProblemCategory", "ProblemKeyword", "ProblemDescription", "SolutionDoc", "CreateDate"
+             FROM gen_ai.cesco_problemsolutions '''
+    
+    hdf = cc.sql(sql)
+    df_result = hdf.collect()
+
+    return df_result

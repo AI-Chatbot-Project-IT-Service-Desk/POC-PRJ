@@ -43,20 +43,6 @@ def display_chat():
                 st.markdown("---")
                 st.markdown("**이와 관련된 다른 질문들도 확인해보세요:**")
                     
-                # button_cols = st.columns([2,2,2,2])
-                # with button_cols[0]:
-                #     st.button(label = message["button_group"]["r1"],
-                #               key = message["button_group"]["r1_key"])
-                # with button_cols[1]:
-                #     st.button(label = message["button_group"]["r2"],
-                #               key = message["button_group"]["r2_key"])
-                # with button_cols[2]:
-                #     st.button(label = message["button_group"]["r3"],
-                #               key = message["button_group"]["r3_key"])
-                # with button_cols[3]:
-                #     st.button(label = message["button_group"]["r4"],
-                #               key = message["button_group"]["r4_key"])
-                    
                 st.button(label = message["button_group"]["r1"],
                           key = message["button_group"]["r1_key"])
                 st.button(label = message["button_group"]["r2"],
@@ -113,6 +99,7 @@ if prompt := st.chat_input("Enter your question"):
     else: #답변
         #k1 답변
         response = hcs.ask_llm(query=prompt, k1_context=df_context_k1)
+
         #k2~k5 recommend
         recommend_group = {"r1": df_context.iloc[1]["ProblemDescription"], "r1_key": df_context.iloc[1]["SolutionDoc"],
                         "r2": df_context.iloc[2]["ProblemDescription"], "r2_key": df_context.iloc[2]["SolutionDoc"],
@@ -122,7 +109,7 @@ if prompt := st.chat_input("Enter your question"):
         #매뉴얼 다운로드 버튼
         document_filecode = str(df_context_k1["SolutionDoc"])
         document_filename = str(df_context_k1["ProblemCategory"])
-        opf = oss.open_pdf_file(document_filecode, document_filename)
+        opf = oss.open_pdf_file(document_filecode, document_filename, "split")
 
         button_info = {"label": "매뉴얼 보기", "data": opf['data'], "file_name":opf['file_name'], "key":opf['file_name']}
         
@@ -130,7 +117,7 @@ if prompt := st.chat_input("Enter your question"):
             "role": "assistant",
             "content": response,
             "button": button_info,
-            "button_group": recommend_group
+            "button_group": recommend_group 
         })
 
         # Display the assistant's response
@@ -153,4 +140,4 @@ if prompt := st.chat_input("Enter your question"):
                     key = recommend_group["r3_key"])
             st.button(label = recommend_group["r4"],
                     key = recommend_group["r4_key"])
-        
+
