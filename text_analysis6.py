@@ -42,7 +42,7 @@ column_mapping = {
     # 추가적인 컬럼 이름 변경
 }
 
-st.markdown('<style>' + open(r'streamlit_pagination\style.css').read() + '</style>', unsafe_allow_html=True)
+# st.markdown('<style>' + open(r'streamlit_pagination\style.css').read() + '</style>', unsafe_allow_html=True)
 
 def data_chunk_choice():
     if 'foo' not in st.session_state or st.session_state['foo'] is None:
@@ -71,7 +71,7 @@ else:
 
 def data_editor():
     st.title("미응답 테이블")
-    df2 = st.data_editor(data.reset_index(drop=True), 
+    df2 = st.data_editor(data.reset_index(drop=True),
                         hide_index=True,
                         column_config={
                                         'QuestionID': st.column_config.Column(disabled=True),
@@ -88,7 +88,6 @@ def data_editor():
         st.warning("행 추가는 불가능합니다. 추가된 행이 삭제되었습니다.")
     
     st.session_state[f'edited_data_{current_chunk}'] = df2
-    
     test = pagination_component(len(list_df) + 1, layout=layout, key="foo")
 
 data_editor()
