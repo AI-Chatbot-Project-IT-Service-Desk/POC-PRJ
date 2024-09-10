@@ -5,7 +5,6 @@ import json
 import pandas as pd
 import pecab
 import hana_ml
-from streamlit_pagination import pagination_component
 from hana_ml import ConnectionContext
 from hana_ml.dataframe import create_dataframe_from_pandas
 from gen_ai_hub.proxy.native.openai import embeddings
@@ -32,16 +31,10 @@ hdf = cc.sql(sql)
 df = hdf.collect()
 texts = df['QuestionText'].tolist()
 
-# col1, col2, col3 = st.columns(3)
-# col1.metric("가장 많은 단어", "70 °F", "1.2 °F")
-# col2.metric("총 수집된 미응답", "9 mph", "-8%")
-# col3.metric("미응답 처리율", "86%", "4%")
-
 # 형태소 분석기 초기화
 pecab = pecab.PeCab()
 
 # 텍스트를 형태소로 분석하여 명사만 추출
-# tokenized_texts = [' '.join(okt.nouns(text)) for text in texts]
 tokenized_texts = [' '.join([word for word, pos in pecab.pos(text) if pos == 'NNG' or pos == 'NNP']) for text in texts]
 
 
@@ -65,18 +58,6 @@ most_common_words = word_count.most_common(10)
 
 # Pandas Series로 변환
 word_series = pd.Series(dict(most_common_words))
-
-# 그래프로 출력
-# plt.figure(figsize=(10, 6))
-# word_series.plot(kind='bar')
-# plt.title('Top 10 Most Frequent Words')
-# plt.xlabel('Words')
-# plt.ylabel('Frequency')
-# plt.xticks(rotation=45)
-# plt.show()
-
-# page = st.number_input('페이지 넘버', min_value=1, max_value=len(df)//10 + 1, value=1)
-# st.dataframe(df.iloc[(page-1)*10:page*10].reset_index(drop=True), hide_index=True)
 
 top_word = word_series.idxmax()
 top_word_count = word_series.max()
@@ -104,6 +85,7 @@ fig, ax = plt.subplots(figsize=(10, 6))
 word_series.plot(kind='bar', color='skyblue', ax=ax)
 ax.set_title('Top 10 Words by TF-IDF Score')
 ax.set_xlabel('Words')
+ax.tick_params(axis='x', rotation=0)
 ax.set_ylabel('TF-IDF Score')
 
 st.pyplot(fig)
@@ -131,10 +113,18 @@ current_data, page, total_pages = paginate_data(df, items_per_page)
 # 현재 페이지의 데이터 출력
 st.data_editor(current_data.reset_index(drop=True),
                         hide_index=True,
-                        column_config={
+                        column_config={ 'Select': st.column_config.CheckboxColumn("Your favorite?", default=False),
                                         'QuestionID': st.column_config.Column(disabled=True),
                                         'QuestionText': st.column_config.Column(disabled=True),
-                                        'Status': st.column_config.Column(disabled=False),
+                                        'Status': st.column_config.SelectboxColumn(disabled=False,
+                                                                                    width="small",
+                                                                                    options=[
+                                                                                        "미처리",
+                                                                                        "처리 완료",
+                                                                                        "보류"
+                                                                                    ],
+                                                                                    default="미처리",
+                                                                                    required=True),
                                         'StatusUpdateDate': st.column_config.Column(disabled=True),
                                         'DownloadDate': st.column_config.Column(disabled=True),
                                         'CreateDate': st.column_config.Column(disabled=True)
@@ -144,3 +134,125 @@ st.data_editor(current_data.reset_index(drop=True),
 
 # 페이지네이션 정보 표시
 st.write(f"Page {page} of {total_pages}")
+
+
+
+# sql = '''SELECT * FROM "CESCO_UNANSWEREDQUESTIONS"'''
+# hdf = cc.sql(sql)
+# df = hdf.collect()
+# texts = df['QuestionText'].tolist()
+
+
+# # 형태소 분석 및 TF-IDF 처리 함수
+# def process_texts(df, pecab):
+#     texts = df['QuestionText'].tolist()
+#     tokenized_texts = [' '.join([word for word, pos in pecab.pos(text) if pos in ['NNG', 'NNP']]) for text in texts]
+    
+#     tfidf = TfidfVectorizer(min_df=1, max_df=0.5)
+#     tfidf_matrix = tfidf.fit_transform(tokenized_texts)
+#     feature_names = tfidf.get_feature_names_out()
+
+#     filtered_words = [feature_names[word_idx] for doc_idx in range(tfidf_matrix.shape[0]) 
+#                       for word_idx, score in zip(tfidf_matrix[doc_idx].indices, tfidf_matrix[doc_idx].data) if score > 0]
+    
+#     word_count = Counter(filtered_words)
+#     return pd.Series(dict(word_count.most_common(10)))
+
+# # 페이지네이션 함수
+# def paginate_data(df, items_per_page):
+#     total_pages = len(df) // items_per_page + (1 if len(df) % items_per_page > 0 else 0)
+#     page = st.number_input("페이지 번호", min_value=1, max_value=total_pages, value=1)
+    
+#     start_idx = (page - 1) * items_per_page
+#     end_idx = start_idx + items_per_page
+#     return df.iloc[start_idx:end_idx], page, total_pages
+
+# # 메트릭 정보 출력 함수
+# def display_metrics(df, word_series):
+#     top_word = word_series.idxmax()
+#     top_word_count = word_series.max()
+#     missing_data_count = df.shape[0]
+#     completed_status_count = df[df['Status'] == '처리 완료'].shape[0]
+#     completed_percentage = (completed_status_count / df.shape[0]) * 100
+
+#     st.title("미응답 데이터 관리 페이지")
+#     col1, col2, col3 = st.columns(3)
+#     col1.metric("Most Common Word", f"{top_word}", f"{top_word_count} occurrences")
+#     col2.metric("Missing Data Count", str(missing_data_count))
+#     col3.metric("Completion Rate", f"{completed_percentage:.2f}%", "Percentage of completed status")
+
+# # 그래프 출력 함수
+# def plot_word_frequencies(word_series):
+#     st.subheader("형태소 분석 결과 - Top 10 미응답 단어")
+#     fig, ax = plt.subplots(figsize=(10, 6))
+#     word_series.plot(kind='bar', color='skyblue', ax=ax)
+#     ax.set_title('Top 10 Words by TF-IDF Score')
+#     ax.set_xlabel('Words')
+#     ax.set_ylabel('TF-IDF Score')
+#     st.pyplot(fig)
+
+# # 데이터 출력 함수
+# def display_data_editor(df):
+#     st.data_editor(df.reset_index(drop=True),
+#                    hide_index=True,
+#                    column_config={
+#                        'QuestionID': st.column_config.Column(disabled=True),
+#                        'QuestionText': st.column_config.Column(disabled=True),
+#                        'Status': st.column_config.Column(disabled=False),
+#                        'StatusUpdateDate': st.column_config.Column(disabled=True),
+#                        'DownloadDate': st.column_config.Column(disabled=True),
+#                        'CreateDate': st.column_config.Column(disabled=True)
+#                    })
+
+# # 전체 워크플로우 실행 함수
+# def main(df, pecab):
+#     word_series = process_texts(df, pecab)
+#     display_metrics(df, word_series)
+#     plot_word_frequencies(word_series)
+
+#     items_per_page = 10
+#     current_data, page, total_pages = paginate_data(df, items_per_page)
+#     display_data_editor(current_data)
+#     st.write(f"Page {page} of {total_pages}")
+
+# main(df, pecab)
+
+# import pandas as pd
+# import streamlit as st
+
+# # 데이터프레임 생성
+# data_df = pd.DataFrame(
+#     {
+#         "widgets": ["st.selectbox", "st.number_input", "st.text_area", "st.button"],
+#         "favorite": [True, False, False, True],
+#     }
+# )
+
+# # 데이터 에디터 출력
+# edited_data = st.data_editor(
+#     data_df,
+#     column_config={
+#         "favorite": st.column_config.CheckboxColumn(
+#             "Your favorite?",
+#             help="Select your **favorite** widgets",
+#             default=False,
+#         )
+#     },
+#     disabled=["widgets"],
+#     hide_index=True,
+# )
+
+# # 'favorite'가 True인 데이터만 필터링
+# filtered_df = edited_data[edited_data['favorite'] == True]
+
+# # CSV 파일로 저장하는 버튼 추가
+# if not filtered_df.empty:
+#     csv = filtered_df.to_csv(index=False)
+#     st.download_button(
+#         label="Download CSV",
+#         data=csv,
+#         file_name="favorite_widgets.csv",
+#         mime="text/csv",
+#     )
+# else:
+#     st.write("No favorite widgets selected.")
