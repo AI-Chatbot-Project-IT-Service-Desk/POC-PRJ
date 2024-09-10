@@ -16,7 +16,7 @@ st.title("매뉴얼 원본 데이터 관리 페이지")
 original_pdf_df = hcs.select_all_filenames_table()
 
 # DataFrame 이름 지정
-original_pdf_df.columns = ["파일명", "생성날짜", "저장파일명"]
+original_pdf_df.columns = ["파일명", "생성날짜", "상세보기"]
 
 # '생성날짜' 컬럼을 datetime 형식으로 변환
 original_pdf_df['생성날짜'] = pd.to_datetime(original_pdf_df['생성날짜'], errors='coerce')
@@ -68,14 +68,14 @@ else:
     if 'current_page' not in st.session_state:
         st.session_state.current_page = 1
     
-    bottom_menu = st.columns((4, 1, 1))
+    top_menu = st.columns((3, 1, 1))
     
-    with bottom_menu[2]:
-        batch_size = st.selectbox("Page Size", options=[25, 50, 100], key="batch_size")
-    with bottom_menu[1]:
+    with top_menu[2]:
+        batch_size = st.selectbox("Page Size", options=[5, 10, 20, 30, 40, 50], key="batch_size")
+    with top_menu[1]:
         total_pages = ((len(filtered_df) // batch_size) + (1 if len(filtered_df) % batch_size > 0 else 0))
         current_page = st.number_input("Page", min_value=1, max_value=total_pages, step=1, key="current_page")
-    with bottom_menu[0]:
+    with top_menu[0]:
         st.markdown(f"Page **{st.session_state.current_page}** of **{total_pages}** ")
 
     # 데이터 페이지 나누기
@@ -87,26 +87,59 @@ else:
         # st.data_editor를 사용하여 체크박스를 포함한 데이터 표시
         edited_df = st.data_editor(
             pages[st.session_state.current_page - 1],
-            column_config={"선택": st.column_config.CheckboxColumn()},
-            use_container_width=True
-        )
+            column_config={
+                "선택": st.column_config.CheckboxColumn(),  # 체크박스는 수정 가능
+                "파일명": st.column_config.TextColumn(disabled=True),  # 수정 불가
+                "생성날짜": st.column_config.DateColumn(disabled=True),  # 수정 불가
+                "상세보기": st.column_config.TextColumn(disabled=True)  # 수정 불가
+                },
+            use_container_width=True,
+            )
         
-        # 체크박스를 선택한 항목만 다운로드
+        # 체크박스를 선택한 항목만 다운로드 및 삭제 기능
         selected_rows = edited_df[edited_df['선택'] == True]
-        
-        if not selected_rows.empty:
-            # 다운로드 링크 생성
-            def create_download_link(df, file_name):
-                buffer = io.StringIO()
-                df.to_csv(buffer, index=False)
-                buffer.seek(0)
-                return st.download_button(
-                    label="매뉴얼 다운로드",
-                    data=buffer.getvalue(),
-                    file_name=file_name,
-                    mime="text/csv"
+
+        # 버튼을 배치할 빈 컨테이너
+        btn_container = st.container()
+        with btn_container:
+            # 빈 공간을 만들기 위한 두 개의 빈 열
+            top_menu_empty = st.columns((3, 3, 2, 1))
+
+            # 다운로드 링크 생성 함수
+            with top_menu_empty[2]:
+                def create_download_link(df, file_name):
+                    buffer = io.StringIO()
+                    df.to_csv(buffer, index=False)
+                    buffer.seek(0)
+                    return st.download_button(
+                        label="매뉴얼 다운로드",
+                        data=buffer.getvalue(),
+                        file_name=file_name,
+                        mime="text/csv",
+                        disabled=df.empty  # 선택된 항목이 없을 경우 버튼 비활성화
+                    )
+                # '매뉴얼 다운로드' 버튼을 항상 표시
+                create_download_link(selected_rows, "selected_data.csv")
+
+            # 삭제 버튼
+            with top_menu_empty[3]:
+                delete_button = st.button(
+                    label="삭제",
+                    disabled=selected_rows.empty  # 선택된 항목이 없으면 비활성화
                 )
-            
-            create_download_link(selected_rows, "selected_data.csv")
+
+                if delete_button and not selected_rows.empty:
+                    # 선택된 파일 삭제 처리 로직 (예: DB에서 삭제)
+                    for index, row in selected_rows.iterrows():
+                        # 여기에 실제 삭제 로직 구현 (DB에서 삭제 등)
+                        st.write(f"{row['파일명']} 파일을 삭제합니다.")
+                    
+                    # 삭제가 완료되면 페이지를 다시 로드하여 데이터 갱신
+                    st.session_state.reload = True
     else:
         st.warning("해당 조건에 맞는 데이터가 없습니다.")
+
+# 페이지가 새로고침 될 때
+if 'reload' in st.session_state and st.session_state.reload:
+    st.session_state.reload = False
+    st.experimental_rerun()
