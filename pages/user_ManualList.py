@@ -103,10 +103,10 @@ else:
         btn_container = st.container()
         with btn_container:
             # 빈 공간을 만들기 위한 두 개의 빈 열
-            top_menu_empty = st.columns((3, 3, 2, 1))
+            top_menu_empty = st.columns((3, 1))
 
             # 다운로드 링크 생성 함수
-            with top_menu_empty[2]:
+            with top_menu_empty[1]:
                 def create_download_link(df, file_name):
                     buffer = io.StringIO()
                     df.to_csv(buffer, index=False)
@@ -121,21 +121,6 @@ else:
                 # '매뉴얼 다운로드' 버튼을 항상 표시
                 create_download_link(selected_rows, "selected_data.csv")
 
-            # 삭제 버튼
-            with top_menu_empty[3]:
-                delete_button = st.button(
-                    label="삭제",
-                    disabled=selected_rows.empty  # 선택된 항목이 없으면 비활성화
-                )
-
-                if delete_button and not selected_rows.empty:
-                    # 선택된 파일 삭제 처리 로직 (예: DB에서 삭제)
-                    for index, row in selected_rows.iterrows():
-                        # 여기에 실제 삭제 로직 구현 (DB에서 삭제 등)
-                        st.write(f"{row['파일명']} 파일을 삭제합니다.")
-                    
-                    # 삭제가 완료되면 페이지를 다시 로드하여 데이터 갱신
-                    st.session_state.reload = True
     else:
         st.warning("해당 조건에 맞는 데이터가 없습니다.")
 
