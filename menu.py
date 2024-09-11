@@ -40,7 +40,7 @@ def admin_menu():
         """
         <style>
         .spacer {
-            height: 50vh;  /* 높이를 화면의 50%로 설정 */
+            height: 40vh;  /* 높이를 화면의 50%로 설정 */
         }
         </style>
         <div class="spacer"></div>
