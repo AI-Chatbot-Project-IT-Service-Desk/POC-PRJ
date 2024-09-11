@@ -1,4 +1,5 @@
 import streamlit as st
+# from Pages.admin_Login import Login_Input
 
 def user_menu():
     # Show a navigation menu for authenticated users
@@ -23,8 +24,8 @@ def admin_menu():
     #st.sidebar.page_link("pages/user_ManualList.py", label="📃 매뉴얼 열람하기")
     st.sidebar.page_link("pages/admin_UploadData.py", label=":material/Upload_File: 매뉴얼 업로드 페이지")
     st.sidebar.page_link("pages/admin_OriginDataManage2.py", label=":material/Folder_Managed: 매뉴얼 원본 데이터 관리")
-    st.sidebar.page_link("pages/admin_SplitDataManage.py", label=":material/Folder: 매뉴얼 데이터 관리",)
-    st.sidebar.page_link("pages/admin_UnAnswerd.py", label=":material/Analytics: 미응답 데이터 관리")
+    st.sidebar.page_link("pages/admin_SplitDataManage2.py", label=":material/Folder: 매뉴얼 데이터 관리",)
+    st.sidebar.page_link("pages/admin_UnAnswerd.py", label=":material/Analytics: 무응답 데이터 관리")
     st.sidebar.markdown(
         """
         <style>
@@ -38,6 +39,8 @@ def admin_menu():
         )
     st.sidebar.markdown("----------------------")
     st.sidebar.page_link("pages/admin_Setting.py", label=":material/Settings: 설정")
+
+    #st.session_state.role = st.session_state._role
 
 def menu():
     if st.session_state.role == "관리자":

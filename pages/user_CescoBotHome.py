@@ -24,8 +24,21 @@ if "messages" not in st.session_state:
 if "unanswered_num" not in st.session_state:
     st.session_state.unanswered_num = 0
 
+#[20240909 강태영] 응답 질문 등록 버튼 key 값
+if "answered_num" not in st.session_state:
+    st.session_state.answered_num = 0
+
+#[20240909 강태영] 재 질문 내용 담는 변수 
+if "selected_question" not in st.session_state:
+    st.session_state.selected_question = ""
+
+def submit_recommended_question(question):
+    st.session_state.selected_question = question
+    print("메타몽2", st.session_state.selected_question)
+
 # Function to display the chat history
 def display_chat():
+    st.empty()
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
 
@@ -37,34 +50,30 @@ def display_chat():
                                    file_name = message["button"]["file_name"],
                                    key = message["button"]["key"],
                                    mime='application/octet-stream')
-            
-
+        
             if message.get("button_group"):
                 st.markdown("---")
                 st.markdown("**이와 관련된 다른 질문들도 확인해보세요:**")
                     
-                # button_cols = st.columns([2,2,2,2])
-                # with button_cols[0]:
-                #     st.button(label = message["button_group"]["r1"],
-                #               key = message["button_group"]["r1_key"])
-                # with button_cols[1]:
-                #     st.button(label = message["button_group"]["r2"],
-                #               key = message["button_group"]["r2_key"])
-                # with button_cols[2]:
-                #     st.button(label = message["button_group"]["r3"],
-                #               key = message["button_group"]["r3_key"])
-                # with button_cols[3]:
-                #     st.button(label = message["button_group"]["r4"],
-                #               key = message["button_group"]["r4_key"])
-                    
                 st.button(label = message["button_group"]["r1"],
-                          key = message["button_group"]["r1_key"])
+                          key = message["button_group"]["r1_key"],
+                          on_click=submit_recommended_question,
+                          kwargs={"question": message["button_group"]["r1"]})
+                
                 st.button(label = message["button_group"]["r2"],
-                          key = message["button_group"]["r2_key"])
+                          key = message["button_group"]["r2_key"],
+                          on_click=submit_recommended_question,
+                          kwargs={"question": message["button_group"]["r2"]})
+                
                 st.button(label = message["button_group"]["r3"],
-                          key = message["button_group"]["r3_key"])
+                          key = message["button_group"]["r3_key"],
+                          on_click=submit_recommended_question,
+                          kwargs={"question": message["button_group"]["r3"]})
+                
                 st.button(label = message["button_group"]["r4"],
-                          key = message["button_group"]["r4_key"])
+                          key = message["button_group"]["r4_key"],
+                          on_click=submit_recommended_question,
+                          kwargs={"question": message["button_group"]["r4"]})
             
             if message.get("un_answer_button"):
                 st.button(label = message["un_answer_button"]["label"],
@@ -75,7 +84,7 @@ def display_chat():
 display_chat()
 
 # User input
-if prompt := st.chat_input("Enter your question"):
+if prompt := st.chat_input("Enter your question") or st.session_state.selected_question :
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -85,7 +94,7 @@ if prompt := st.chat_input("Enter your question"):
     #k1
     df_context_k1 = df_context.iloc[0]
 
-    print("L2_DISTANCE SCORE: ", df_context_k1["L2D_SIM"])
+    print("[LOG] L2_DISTANCE SCORE: ", df_context_k1["L2D_SIM"])
 
     #[20240904 강태영] 미응답 분류 로직 추가
     if df_context_k1["L2D_SIM"] >= 0.5: #미응답 분류
@@ -102,7 +111,7 @@ if prompt := st.chat_input("Enter your question"):
             "role": "assistant",
             "content": response,
             "un_answer_button": un_answer_button
-        })
+        }) 
         
         with st.chat_message("assistant"):
             st.markdown(response)
@@ -113,16 +122,20 @@ if prompt := st.chat_input("Enter your question"):
     else: #답변
         #k1 답변
         response = hcs.ask_llm(query=prompt, k1_context=df_context_k1)
+
         #k2~k5 recommend
-        recommend_group = {"r1": df_context.iloc[1]["ProblemDescription"], "r1_key": df_context.iloc[1]["SolutionDoc"],
-                        "r2": df_context.iloc[2]["ProblemDescription"], "r2_key": df_context.iloc[2]["SolutionDoc"],
-                        "r3": df_context.iloc[3]["ProblemDescription"], "r3_key": df_context.iloc[3]["SolutionDoc"],
-                        "r4": df_context.iloc[4]["ProblemDescription"], "r4_key": df_context.iloc[4]["SolutionDoc"]}
+        recommend_group = {"r1": df_context.iloc[1]["ProblemDescription"], "r1_key": df_context.iloc[1]["SolutionDoc"]+str(st.session_state.answered_num),
+                        "r2": df_context.iloc[2]["ProblemDescription"], "r2_key": df_context.iloc[2]["SolutionDoc"]+str(st.session_state.answered_num),
+                        "r3": df_context.iloc[3]["ProblemDescription"], "r3_key": df_context.iloc[3]["SolutionDoc"]+str(st.session_state.answered_num),
+                        "r4": df_context.iloc[4]["ProblemDescription"], "r4_key": df_context.iloc[4]["SolutionDoc"]+str(st.session_state.answered_num)}
+        
+        #key 조합 후 증가
+        st.session_state.answered_num += 1
         
         #매뉴얼 다운로드 버튼
         document_filecode = str(df_context_k1["SolutionDoc"])
         document_filename = str(df_context_k1["ProblemCategory"])
-        opf = oss.open_pdf_file(document_filecode, document_filename)
+        opf = oss.open_pdf_file(document_filecode, document_filename, "split")
 
         button_info = {"label": "매뉴얼 보기", "data": opf['data'], "file_name":opf['file_name'], "key":opf['file_name']}
         
@@ -130,7 +143,7 @@ if prompt := st.chat_input("Enter your question"):
             "role": "assistant",
             "content": response,
             "button": button_info,
-            "button_group": recommend_group
+            "button_group": recommend_group 
         })
 
         # Display the assistant's response
@@ -145,12 +158,23 @@ if prompt := st.chat_input("Enter your question"):
             st.markdown("---")
             st.markdown("**이와 관련된 다른 질문들도 확인해보세요:**")
                 
-            st.button(label = recommend_group["r1"],
-                    key = recommend_group["r1_key"])
+            st.button(label = recommend_group["r1"], 
+                      key = recommend_group["r1_key"],
+                      on_click= submit_recommended_question,
+                      kwargs={"question": recommend_group["r1"]})
+            
             st.button(label = recommend_group["r2"],
-                    key = recommend_group["r2_key"])
+                    key = recommend_group["r2_key"],
+                    on_click=submit_recommended_question,
+                    kwargs={"question": recommend_group["r2"]})
+            
             st.button(label = recommend_group["r3"],
-                    key = recommend_group["r3_key"])
+                    key = recommend_group["r3_key"],
+                    on_click=submit_recommended_question,
+                    kwargs={"question": recommend_group["r3"]})
+            
             st.button(label = recommend_group["r4"],
-                    key = recommend_group["r4_key"])
-        
+                    key = recommend_group["r4_key"],
+                    on_click=submit_recommended_question,
+                    kwargs={"question": recommend_group["r4"]})
+

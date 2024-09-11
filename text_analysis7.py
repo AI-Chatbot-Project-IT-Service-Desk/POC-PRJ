@@ -12,12 +12,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
 import matplotlib.pyplot as plt
 import koreanize_matplotlib
-from menu import menu_with_redirect
 
-# Redirect to app.py if not logged in, otherwise show the navigation menu
-menu_with_redirect()
-
-with open(os.path.join(os.getcwd(), r"./config/cesco-poc-hc-service-key.json")) as f:
+with open(os.path.join(os.getcwd(), r"C:\Users\cesco\Desktop\code file\AI PoC\POC-PRJ\config\cesco-poc-hc-service-key.json")) as f:
         hana_env_c = json.load(f)
         port_c = hana_env_c['port']
         user_c = hana_env_c['user']
@@ -70,7 +66,7 @@ completed_status_count = df[df['Status'] == '처리 완료'].shape[0]
 total_count = df.shape[0]
 completed_percentage = (completed_status_count / total_count) * 100
 
-st.title("무응답 데이터 관리 페이지")
+st.title("미응답 데이터 관리 페이지")
 
 col1, col2, col3 = st.columns(3)
 
