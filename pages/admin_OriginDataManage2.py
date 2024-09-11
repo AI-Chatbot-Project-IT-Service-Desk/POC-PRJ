@@ -80,9 +80,10 @@ else:
 
     # 데이터 페이지 나누기
     def split_frame(input_df, rows):
-        return [input_df.iloc[i:i + rows] for i in range(0, len(input_df), rows)]
+        return [input_df.iloc[i:i + rows] for i in range(1, len(input_df), rows)]
     
     pages = split_frame(filtered_df, batch_size)
+
     if total_pages > 0:
         # st.data_editor를 사용하여 체크박스를 포함한 데이터 표시
         edited_df = st.data_editor(
@@ -98,7 +99,7 @@ else:
         
         # 체크박스를 선택한 항목만 다운로드 및 삭제 기능
         selected_rows = edited_df[edited_df['선택'] == True]
-        
+
         # 버튼을 배치할 빈 컨테이너
         btn_container = st.container()
         with btn_container:
@@ -121,25 +122,4 @@ else:
                 # '매뉴얼 다운로드' 버튼을 항상 표시
                 create_download_link(selected_rows, "selected_data.csv")
 
-            # 삭제 버튼
-            with top_menu_empty[3]:
-                delete_button = st.button(
-                    label="삭제",
-                    disabled=selected_rows.empty  # 선택된 항목이 없으면 비활성화
-                )
-
-                if delete_button and not selected_rows.empty:
-                    # 선택된 파일 삭제 처리 로직 (예: DB에서 삭제)
-                    for index, row in selected_rows.iterrows():
-                        # 여기에 실제 삭제 로직 구현 (DB에서 삭제 등)
-                        st.write(f"{row['파일명']} 파일을 삭제합니다.")
-                    
-                    # 삭제가 완료되면 페이지를 다시 로드하여 데이터 갱신
-                    st.session_state.reload = True
-    else:
-        st.warning("해당 조건에 맞는 데이터가 없습니다.")
-
-# 페이지가 새로고침 될 때
-if 'reload' in st.session_state and st.session_state.reload:
-    st.session_state.reload = False
-    st.experimental_rerun()
+          

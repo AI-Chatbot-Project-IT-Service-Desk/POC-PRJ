@@ -25,7 +25,7 @@ original_pdf_df['생성날짜'] = pd.to_datetime(original_pdf_df['생성날짜']
 col1, col2 = st.columns(2)
 
 with col1:
-    period_filter = st.date_input("생성날짜", key="period_filter_1", value=None)  # 고유한 키 사용
+    period_filter = st.date_input("생성날짜", key="period_filter_2", value=None)  # 고유한 키 사용
 with col2:
     category_filter = st.selectbox("카테고리", options=["전체"] + list(original_pdf_df['파일명'].unique()), key="category_filter_1")  # 고유한 키 사용
 
