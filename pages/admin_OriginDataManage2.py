@@ -98,7 +98,7 @@ else:
         
         # 체크박스를 선택한 항목만 다운로드 및 삭제 기능
         selected_rows = edited_df[edited_df['선택'] == True]
-
+        
         # 버튼을 배치할 빈 컨테이너
         btn_container = st.container()
         with btn_container:
