@@ -196,11 +196,11 @@ def ask_llm(query: str, k1_context: pd.Series) -> str:
     return response.content
 
 #[20240904 강태영] 무응답 답변 등록 
-def upload_unanswered_data(prompt: str):
+def upload_unanswered_data(unquestion: str):
 
     #미응답 테이블에 똑같은 질문이 들어 있다면 INSERT 하지 않는다
     sql = '''SELECT count(*) FROM gen_ai.cesco_unansweredquestions
-            WHERE "QuestionText" = '{text}' '''.format(text=prompt)
+            WHERE "QuestionText" = '{text}' '''.format(text=unquestion)
     
     hdf = cc.sql(sql)
     df_result = hdf.collect()
@@ -210,7 +210,7 @@ def upload_unanswered_data(prompt: str):
     if int(is_exist) == 0: 
         sql_command = '''INSERT INTO "CESCO_UNANSWEREDQUESTIONS" (
         "QuestionID", "QuestionText", "Status", "StatusUpdateDate", "DownloadDate", "CreateDate")
-        VALUES (GEN_AI.UNANSWER_NO.NEXTVAL, '{text}', '미처리', CURRENT_DATE, CURRENT_DATE, CURRENT_DATE)'''.format(text=prompt)
+        VALUES (GEN_AI.UNANSWER_NO.NEXTVAL, '{text}', '미처리', CURRENT_DATE, CURRENT_DATE, CURRENT_DATE)'''.format(text=unquestion)
 
         try:
             cursor.execute(sql_command)
@@ -224,6 +224,10 @@ def upload_unanswered_data(prompt: str):
             cursor.close()
 
         cc.connection.setautocommit(True)
+
+        return True
+    else:
+        return False
 
 #[20240905 강태영] 매뉴얼 데이터 전체 조회
 def get_menual_data():

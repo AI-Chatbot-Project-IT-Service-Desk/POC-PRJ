@@ -34,7 +34,13 @@ if "selected_question" not in st.session_state:
 
 def submit_recommended_question(question):
     st.session_state.selected_question = question
-    print("메타몽2", st.session_state.selected_question)
+
+#[20240911 강태영] 미응답 버튼 클릭시 evnet 묶음
+def handle_unanswered_click_event(unquestion):
+    if hcs.upload_unanswered_data(unquestion):
+        st.toast("질문이 등록 되었습니다.", icon="🥳")
+    else:
+        st.toast("이미 등록된 질문입니다", icon="😊")
 
 # Function to display the chat history
 def display_chat():
@@ -74,7 +80,8 @@ def display_chat():
             if message.get("un_answer_button"):
                 st.button(label = message["un_answer_button"]["label"],
                           key = message["un_answer_button"]["key"],
-                          on_click = hcs.upload_unanswered_data(message["un_answer_button"]["data"]))
+                          on_click = handle_unanswered_click_event,
+                          kwargs={"unquestion": message["un_answer_button"]["data"]})
 
 # Display the chat history
 display_chat()
@@ -113,7 +120,8 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
             st.markdown(response)
             st.button(  label = un_answer_button["label"],
                         key = un_answer_button["key"],
-                        on_click = hcs.upload_unanswered_data(un_answer_button["data"]))
+                        on_click = handle_unanswered_click_event,
+                        kwargs={"unquestion": un_answer_button["data"]})
             
     else: #답변
         #k1 답변
