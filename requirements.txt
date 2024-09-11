@@ -15,3 +15,9 @@ object-store-python
 streamlit
 sentence_transformers
 PyPDF2
+pecab
+TfidfVectorizer
+Counter
+koreanize_matplotlib
+matplotlib
+pyplot
