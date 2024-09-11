@@ -133,7 +133,7 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
         document_filename = str(df_context_k1["ProblemCategory"])
         
         #object store s3 host url
-        document_url = oss.geturl() + document_filecode
+        document_url = oss.getUrl() + document_filecode
         button_info = {"label": "매뉴얼 보기", "s3_link": document_url}
 
         st.session_state.messages.append({

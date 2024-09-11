@@ -93,8 +93,23 @@ def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
     print("[SUCCESS] S3 Object Store Upload를 완료하였습니다")
 
 #[20240911 강태영] os s3 host url 주소 return 
-def geturl() -> str:
-
+def getUrl() -> str:
     s3_host_url = "https://" + os_env_c['bucket'] + '.' + os_env_c['host'] + '/' + aws_pdf_path + '/'
-
     return s3_host_url
+
+def getResources() -> str:
+    s3_res_url = "https://" + os_env_c['bucket'] + '.' + os_env_c['host'] + '/resources/'
+    return s3_res_url
+
+#[20240911 강태영] s3 bucket에서 특정 파일 삭제):
+def delete_file_from_s3(delete_file_list):
+    for file in delete_file_list:
+        try:
+            s3_client.delete_object(
+                Bucket=bucket_name,
+                Key=f"{aws_pdf_path}/{file}"
+            )
+        except ClientError as e:
+            print(f"[ERROR] 파일을 삭제하는 도중 에러가 발생하였습니다.: {e}")
+    
+    print("[SUCCESS] S3 Object Store Delete를 완료하였습니다")
