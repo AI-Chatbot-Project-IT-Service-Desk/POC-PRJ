@@ -170,6 +170,14 @@ def select_all_filenames_table():
 
     return df_result
 
+def select_all_unansweredquestions_table():
+    sql = '''SELECT "CreateDate", "StatusUpdateDate", "QuestionText", "Status" FROM "CESCO_UNANSWEREDQUESTIONS"'''
+
+    hdf = cc.sql(sql)
+    df = hdf.collect()
+
+    return df
+
 #[20240830 강태영] QNA 테이블 조회
 def select_all_problemsolutions_table():
     # with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
