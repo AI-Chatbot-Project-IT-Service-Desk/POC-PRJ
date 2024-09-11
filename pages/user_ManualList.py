@@ -8,6 +8,7 @@ import io
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'server'))
 
 from server import hana_cloud_service as hcs
+from server import object_store_service as oss
 
 # Redirect to app.py if not logged in, otherwise show the navigation menu
 menu_with_redirect()
@@ -16,13 +17,13 @@ st.title("매뉴얼 열람 페이지")
 original_pdf_df = hcs.select_all_filenames_table()
 
 # DataFrame 이름 지정
-original_pdf_df.columns = ["파일명", "생성날짜", "상세보기"]
+original_pdf_df.columns = ["파일명", "생성날짜", "메뉴얼링크"]
+
+#[20240911 강태영] s3 link url 붙이기
+original_pdf_df["메뉴얼링크"] = oss.geturl() + original_pdf_df["메뉴얼링크"]
 
 # '생성날짜' 컬럼을 datetime 형식으로 변환
 original_pdf_df['생성날짜'] = pd.to_datetime(original_pdf_df['생성날짜'], errors='coerce')
-
-# 체크박스를 위한 열 추가 (첫 번째 열에 삽입)
-original_pdf_df.insert(0, "선택", False)  # 선택이라는 체크박스 열을 첫 열로 추가
 
 # 사용자 입력 필터
 col1, col2 = st.columns(2)
@@ -91,35 +92,37 @@ else:
                 "선택": st.column_config.CheckboxColumn(),  # 체크박스는 수정 가능
                 "파일명": st.column_config.TextColumn(disabled=True),  # 수정 불가
                 "생성날짜": st.column_config.DateColumn(disabled=True),  # 수정 불가
-                "상세보기": st.column_config.TextColumn(disabled=True)  # 수정 불가
+                "메뉴얼링크": st.column_config.LinkColumn("메뉴얼 링크", 
+                                                      display_text="상세보기",
+                                                      disabled=True)  # 수정 불가
                 },
             use_container_width=True,
             )
         
-        # 체크박스를 선택한 항목만 다운로드 및 삭제 기능
-        selected_rows = edited_df[edited_df['선택'] == True]
+        # # 체크박스를 선택한 항목만 다운로드 및 삭제 기능
+        # selected_rows = edited_df[edited_df['선택'] == True]
 
-        # 버튼을 배치할 빈 컨테이너
-        btn_container = st.container()
-        with btn_container:
-            # 빈 공간을 만들기 위한 두 개의 빈 열
-            top_menu_empty = st.columns((3, 1))
+        # # 버튼을 배치할 빈 컨테이너
+        # btn_container = st.container()
+        # with btn_container:
+        #     # 빈 공간을 만들기 위한 두 개의 빈 열
+        #     top_menu_empty = st.columns((3, 1))
 
-            # 다운로드 링크 생성 함수
-            with top_menu_empty[1]:
-                def create_download_link(df, file_name):
-                    buffer = io.StringIO()
-                    df.to_csv(buffer, index=False)
-                    buffer.seek(0)
-                    return st.download_button(
-                        label="매뉴얼 다운로드",
-                        data=buffer.getvalue(),
-                        file_name=file_name,
-                        mime="text/csv",
-                        disabled=df.empty  # 선택된 항목이 없을 경우 버튼 비활성화
-                    )
-                # '매뉴얼 다운로드' 버튼을 항상 표시
-                create_download_link(selected_rows, "selected_data.csv")
+        #     # 다운로드 링크 생성 함수
+        #     with top_menu_empty[1]:
+        #         def create_download_link(df, file_name):
+        #             buffer = io.StringIO()
+        #             df.to_csv(buffer, index=False)
+        #             buffer.seek(0)
+        #             return st.download_button(
+        #                 label="매뉴얼 다운로드",
+        #                 data=buffer.getvalue(),
+        #                 file_name=file_name,
+        #                 mime="text/csv",
+        #                 disabled=df.empty  # 선택된 항목이 없을 경우 버튼 비활성화
+        #             )
+        #         # '매뉴얼 다운로드' 버튼을 항상 표시
+        #         create_download_link(selected_rows, "selected_data.csv")
 
     else:
         st.warning("해당 조건에 맞는 데이터가 없습니다.")
