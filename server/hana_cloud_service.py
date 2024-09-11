@@ -181,7 +181,7 @@ def select_all_problemsolutions_table():
     # cursor = cc.connection.cursor()
     # cursor.execute("""SET SCHEMA GEN_AI""")
 
-    sql1 = '''SELECT "ProblemCategory", "ProblemKeyword", "ProblemDescription", "CreateDate" FROM gen_ai.cesco_problemsolutions;'''
+    sql1 = '''SELECT "ProblemCategory", "ProblemDescription", "CreateDate", "SolutionDoc" FROM gen_ai.cesco_problemsolutions;'''
         
     hdf = cc.sql(sql1)
     df_result = hdf.collect()    

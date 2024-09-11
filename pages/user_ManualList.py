@@ -3,21 +3,20 @@ from menu import menu_with_redirect
 import pandas as pd
 import os
 import sys
+import io
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'server'))
 
-from server import object_store_service as oss
 from server import hana_cloud_service as hcs
-from server import pdf_split as ps
 
 # Redirect to app.py if not logged in, otherwise show the navigation menu
 menu_with_redirect()
 
 st.title("매뉴얼 열람 페이지")
-original_pdf_df = hcs.get_menual_data()
+original_pdf_df = hcs.select_all_filenames_table()
 
 # DataFrame 이름 지정
-original_pdf_df.columns = ["파일명", "문제명", "생성날짜", "저장파일명"]
+original_pdf_df.columns = ["파일명", "생성날짜", "상세보기"]
 
 # '생성날짜' 컬럼을 datetime 형식으로 변환
 original_pdf_df['생성날짜'] = pd.to_datetime(original_pdf_df['생성날짜'], errors='coerce')
@@ -88,9 +87,14 @@ else:
         # st.data_editor를 사용하여 체크박스를 포함한 데이터 표시
         edited_df = st.data_editor(
             pages[st.session_state.current_page - 1],
-            column_config={"선택": st.column_config.CheckboxColumn()},
-            use_container_width=True
-        )
+            column_config={
+                "선택": st.column_config.CheckboxColumn(),  # 체크박스는 수정 가능
+                "파일명": st.column_config.TextColumn(disabled=True),  # 수정 불가
+                "생성날짜": st.column_config.DateColumn(disabled=True),  # 수정 불가
+                "상세보기": st.column_config.TextColumn(disabled=True)  # 수정 불가
+                },
+            use_container_width=True,
+            )
         
         # 체크박스를 선택한 항목만 다운로드 및 삭제 기능
         selected_rows = edited_df[edited_df['선택'] == True]
@@ -99,10 +103,10 @@ else:
         btn_container = st.container()
         with btn_container:
             # 빈 공간을 만들기 위한 두 개의 빈 열
-            top_menu_empty = st.columns((3, 3, 2, 1))
+            top_menu_empty = st.columns((3, 1))
 
             # 다운로드 링크 생성 함수
-            with top_menu_empty[2]:
+            with top_menu_empty[1]:
                 def create_download_link(df, file_name):
                     buffer = io.StringIO()
                     df.to_csv(buffer, index=False)
@@ -117,21 +121,6 @@ else:
                 # '매뉴얼 다운로드' 버튼을 항상 표시
                 create_download_link(selected_rows, "selected_data.csv")
 
-            # 삭제 버튼
-            with top_menu_empty[3]:
-                delete_button = st.button(
-                    label="삭제",
-                    disabled=selected_rows.empty  # 선택된 항목이 없으면 비활성화
-                )
-
-                if delete_button and not selected_rows.empty:
-                    # 선택된 파일 삭제 처리 로직 (예: DB에서 삭제)
-                    for index, row in selected_rows.iterrows():
-                        # 여기에 실제 삭제 로직 구현 (DB에서 삭제 등)
-                        st.write(f"{row['파일명']} 파일을 삭제합니다.")
-                    
-                    # 삭제가 완료되면 페이지를 다시 로드하여 데이터 갱신
-                    st.session_state.reload = True
     else:
         st.warning("해당 조건에 맞는 데이터가 없습니다.")
 
