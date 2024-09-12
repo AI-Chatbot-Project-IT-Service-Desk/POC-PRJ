@@ -129,20 +129,6 @@ def select_all_filenames_table():
 
 #[20240830 강태영] QNA 테이블 조회
 def select_all_problemsolutions_table():
-<<<<<<< HEAD
-    # with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
-    #     hana_env_c = json.load(f)
-    #     port_c = hana_env_c['port']
-    #     user_c = hana_env_c['user']
-    #     host_c = hana_env_c['host']
-    #     pwd_c = hana_env_c['pwd']
-
-    # cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
-    # cursor = cc.connection.cursor()
-    # cursor.execute("""SET SCHEMA GEN_AI""")
-
-=======
->>>>>>> main
     sql1 = '''SELECT "ProblemCategory", "ProblemDescription", "CreateDate", "SolutionDoc" FROM gen_ai.cesco_problemsolutions;'''
         
     hdf = cc.sql(sql1)
