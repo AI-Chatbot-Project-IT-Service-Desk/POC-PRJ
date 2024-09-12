@@ -311,3 +311,12 @@ def remove_child_files(code_list):
     cc.connection.setautocommit(True)
 
     print("[LOG] Successfully deleted to HANA Cloud.")
+
+#[20240912 강진욱] 무응답 테이블 조회
+def select_all_unansweredquestions_table():
+    sql = '''SELECT "CreateDate", "StatusUpdateDate", "QuestionText", "Status" FROM "CESCO_UNANSWEREDQUESTIONS"'''
+
+    hdf = cc.sql(sql)
+    df = hdf.collect()
+
+    return df
