@@ -1,6 +1,5 @@
 import os
 import json
-from object_store import ObjectStore
 from PyPDF2 import PdfReader, PdfWriter
 import io
 import boto3
