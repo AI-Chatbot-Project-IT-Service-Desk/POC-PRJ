@@ -311,3 +311,33 @@ def remove_child_files(code_list):
     cc.connection.setautocommit(True)
 
     print("[LOG] Successfully deleted to HANA Cloud.")
+
+#[20240912 강진욱] 무응답 테이블 조회
+def select_all_unansweredquestions_table():
+    sql = '''SELECT "QuestionID", "CreateDate", "StatusUpdateDate", "QuestionText", "Status" FROM "CESCO_UNANSWEREDQUESTIONS"'''
+
+    hdf = cc.sql(sql)
+    df = hdf.collect()
+
+    return df
+
+#[20240912 강태영]무응답 테이블 row 삭제
+def remove_selected_unanswred(drop_indexes):
+    index_map_list =  ", ".join(map(str, drop_indexes))
+
+    sql = '''delete from gen_ai.cesco_unansweredquestions
+            where "QuestionID" in ({index_map_list})'''.format(index_map_list = index_map_list)
+    
+    try:
+        cursor.execute(sql)
+    except Exception as e:
+        cc.connection.rollback()
+        print("An error occurred:", e)
+        
+    try:
+        cc.connection.commit()
+    finally:
+        cursor.close()
+    cc.connection.setautocommit(True)
+
+    print("[LOG] Successfully deleted to HANA Cloud.")

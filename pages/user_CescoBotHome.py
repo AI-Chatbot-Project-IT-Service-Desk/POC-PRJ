@@ -105,7 +105,7 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-
+    
     #k1~k5
     df_context = hcs.run_vector_search(query=prompt, metric="L2DISTANCE", k=5)
     #k1
@@ -193,3 +193,6 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                     key = recommend_group["r4_key"],
                     on_click=submit_recommended_question,
                     kwargs={"question": recommend_group["r4"]})
+            
+#[20240912 강태영] 다 하고 나서 초기화 하기
+st.session_state.selected_question = ""
