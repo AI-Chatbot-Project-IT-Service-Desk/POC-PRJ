@@ -10,6 +10,20 @@ from server import object_store_service as oss
 from server import hana_cloud_service as hcs
 from server import pdf_split as ps
 
+# CSS 스타일 적용 (버튼 텍스트를 왼쪽 정렬)
+st.markdown("""
+            <style>
+            .stButton button {
+            text-align: left;
+            width: 100%;
+            disply: flex;
+            justify-content: flex-start;
+            background-color: #fafafa;  /* 옅은 회색 */
+            color: black;  
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
 # Redirect to app.py if not logged in, otherwise show the navigation menu
 menu_with_redirect()
 
@@ -55,7 +69,7 @@ def display_chat():
         
             if message.get("button_group"):
                 st.markdown("---")
-                st.markdown("**이와 관련된 다른 질문들도 확인해보세요:**")
+                st.markdown("**💡이와 관련된 다른 질문들도 확인해보세요:**")
                     
                 st.button(label = message["button_group"]["r1"],
                           key = message["button_group"]["r1_key"],
@@ -103,7 +117,7 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
     if df_context_k1["L2D_SIM"] >= 0.5: #미응답 분류
         response = "해당 질문과 관련된 답변이 아직 준비되지 못했습니다."
 
-        un_answer_button = {"label": "미응답 질문 등록", 
+        un_answer_button = {"label": "⚠️ 미응답 질문 등록", 
                             "key": "un" + str(st.session_state.unanswered_num),
                             "data": prompt}
         
@@ -142,7 +156,7 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
         
         #object store s3 host url
         document_url = oss.getUrl() + document_filecode
-        button_info = {"label": "매뉴얼 보기", "s3_link": document_url}
+        button_info = {"label": "매뉴얼 확인하기", "s3_link": document_url}
 
         st.session_state.messages.append({
             "role": "assistant",
@@ -158,7 +172,7 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
             st.link_button(button_info["label"], button_info["s3_link"])
                    
             st.markdown("---")
-            st.markdown("**이와 관련된 다른 질문들도 확인해보세요:**")
+            st.markdown("**이와 관련된 다른 질문들도 확인해보세요 :**")
                 
             st.button(label = recommend_group["r1"], 
                       key = recommend_group["r1_key"],
@@ -179,7 +193,6 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                     key = recommend_group["r4_key"],
                     on_click=submit_recommended_question,
                     kwargs={"question": recommend_group["r4"]})
-
-
+            
 #[20240912 강태영] 다 하고 나서 초기화 하기
 st.session_state.selected_question = ""
