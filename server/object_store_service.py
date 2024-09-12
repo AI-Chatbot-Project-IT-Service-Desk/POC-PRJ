@@ -6,7 +6,7 @@ import io
 import boto3
 from botocore.exceptions import ClientError
 
-s3_configure_path = './config/s3-service-key-cesco1-interim.txt'
+s3_configure_path = './config/cesco-poc-os-service-key-1.txt'
 
 with open(os.path.join(os.getcwd(), s3_configure_path)) as f:
     os_env_c = json.load(f)
@@ -33,7 +33,7 @@ print("[START] SAP Object Store S3 Connect Success")
 #[20240911 강진욱] binary/octet-stream 형식으로 올라가 생기는 문제를 mime type 변경으로 해결하기 위해 application/pdf 지정 
 def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
     # S3 설정 경로
-    s3_configure_path = './config/s3-service-key-cesco1-interim.txt'
+    s3_configure_path = './config/cesco-poc-os-service-key-1.txt'
 
     # S3 설정 파일 읽기
     with open(os.path.join(os.getcwd(), s3_configure_path)) as f:

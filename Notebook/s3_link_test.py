@@ -7,7 +7,7 @@ from PyPDF2 import PdfReader, PdfWriter
 import io
 
 # Get configuration
-s3_configure_path = './configure/s3-service-key-cesco1-interim.txt'
+s3_configure_path = './config/cesco-poc-os-service-key-1.txt'
 
 with open(os.path.join(os.getcwd(), s3_configure_path)) as f:
     os_env_c = json.load(f)
