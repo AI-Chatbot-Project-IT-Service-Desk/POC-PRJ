@@ -1,34 +1,9 @@
 import os
 import json
-from object_store import ObjectStore
 from PyPDF2 import PdfReader, PdfWriter
 import io
 import boto3
 from botocore.exceptions import ClientError
-
-s3_configure_path = './config/cesco-poc-os-service-key-1.txt'
-
-with open(os.path.join(os.getcwd(), s3_configure_path)) as f:
-    os_env_c = json.load(f)
-    aws_access_key_id = os_env_c['access_key_id']
-    aws_secret_access_key = os_env_c['secret_access_key']
-    aws_region = os_env_c['region']
-        
-    ### Update path 
-    aws_url = os.path.join('s3://', os_env_c['bucket'])
-
-storage_options = {
-    "aws_access_key_id": aws_access_key_id, 
-    "aws_secret_access_key": aws_secret_access_key,
-    "aws_region": aws_region
-}
-
-aws_pdf_path = os.path.join(aws_url + '/', 'cesco_division_file')
-store = ObjectStore(aws_pdf_path, storage_options)
-    
-#print("[store path]", store.list())
-
-print("[START] SAP Object Store S3 Connect Success")
 
 #[20240911 강진욱] binary/octet-stream 형식으로 올라가 생기는 문제를 mime type 변경으로 해결하기 위해 application/pdf 지정 
 def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
