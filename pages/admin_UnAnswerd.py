@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import pecab
 import matplotlib.pyplot as plt
+from matplotlib import font_manager, rc
 from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -26,6 +27,10 @@ unanswered_df.insert(0, "선택", False)
 
 # Analyze and visualize texts
 def analyze_texts(texts, pecab, top_n=10):
+    font_path = 'Fonts\세스코R_20140905153946.TTF'  # 서버에 맞는 폰트 경로 설정
+    font = font_manager.FontProperties(fname=font_path).get_name()
+    rc('font', family=font)
+
     tokenized_texts = [' '.join([word for word, pos in pecab.pos(text) if pos in ['NNG', 'NNP']]) for text in texts]
     tfidf = TfidfVectorizer(min_df=1, max_df=0.5)
     tfidf_matrix = tfidf.fit_transform(tokenized_texts)
@@ -41,6 +46,7 @@ def analyze_texts(texts, pecab, top_n=10):
     word_series.plot(kind='bar', color='skyblue', ax=ax)
     ax.set_title(f'Top {top_n} Words')
     ax.set_xlabel('단어')
+    plt.xticks(rotation=0)
     ax.set_ylabel('빈도 수')
     st.pyplot(fig)
     
