@@ -341,3 +341,24 @@ def remove_selected_unanswered(drop_indexes):
     cc.connection.setautocommit(True)
 
     print("[LOG] Successfully deleted to HANA Cloud.")
+
+#[20240919 강태영]무응답 테이블 상태 수정
+def updated_unanswered_status(update_state_index, update_state_value):
+    
+    sql = '''UPDATE gen_ai.cesco_unansweredquestions 
+            SET "Status" = '{update_state_value}', "StatusUpdateDate" = CURRENT_DATE
+            WHERE "QuestionID" = {update_state_index} '''.format(update_state_value = update_state_value,
+                                                                 update_state_index = update_state_index)
+    try:
+        cursor.execute(sql)
+    except Exception as e:
+        cc.connection.rollback()
+        print("An error occurred:", e)
+        
+    try:
+        cc.connection.commit()
+    finally:
+        cursor.close()
+    cc.connection.setautocommit(True)
+
+    print("[LOG] Successfully updated to HANA Cloud.")
