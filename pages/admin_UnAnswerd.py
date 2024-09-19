@@ -168,8 +168,18 @@ else:
                 unsafe_allow_html=True
             )
 
-    # Display paginated data
+            # Display "전체 선택" 체크박스
+            select_all_checkbox = st.checkbox("전체 선택", key="select_all")
+
+            # Display paginated data
             paginated_df = paginate_data(filtered_df, batch_size, current_page)
+
+            # If 전체 선택 is checked, select all checkboxes in the current page
+            if select_all_checkbox:
+                paginated_df.loc[:, "선택"] = True  # .loc[]로 슬라이스 경고 해결
+            else:
+                paginated_df.loc[:, "선택"] = False  # .loc[]로 슬라이스 경고 해결
+
             if paginated_df is not None:
                 ss.edited_df = st.data_editor(
                     paginated_df, 
@@ -197,11 +207,11 @@ else:
                     col1, col2, col3 = st.columns([5, 2, 1])  # 첫 번째 열은 넓게, 두 번째, 세 번째 열에 버튼 배치
                     with col2:
                         # 데이터 다운로드 버튼
-                        file_data = create_download_link(selected_rows, "selected_data.csv")
+                        file_data = create_download_link(selected_rows, "무응답데이터 다운로드.csv")
                         st.download_button(
                             "데이터 다운로드",
                             file_data,
-                            "selected_data.csv",
+                            "무응답데이터 다운로드.csv",
                             mime="text/csv",
                             disabled=selected_rows.empty
                         )
