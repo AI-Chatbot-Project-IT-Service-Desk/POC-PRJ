@@ -17,12 +17,9 @@ menu_with_redirect()
 
 pecab = pecab.PeCab()
 
-#[20240912 강태영] 삭제를 위해 dataframe을 session_state에 넣는다
-
+# [20240912 강태영] 삭제를 위해 dataframe을 session_state에 넣는다
 if "unanswered_df" not in st.session_state:
-    # Load unanswered questions and prepare data
     df = hcs.select_all_unansweredquestions_table()
-    #texts = df['QuestionText'].tolist()
     df = df.set_index("QuestionID")
     df.columns = ['생성날짜', '처리날짜', '미응답 내용', '처리상태']
     df['생성날짜'] = pd.to_datetime(df['생성날짜'], errors='coerce')
@@ -99,9 +96,8 @@ def create_download_link(df, file_name):
     buffer.seek(0)
     return buffer.getvalue()
 
-#[20240912 강태영] 삭제 함수
+# [20240912 강태영] 삭제 함수
 def removeData(selected_rows):
-    #Index 객체에서 index 배열 추출.
     drop_indexes = selected_rows.index.tolist()
     #프론트 단에서 삭제
     st.session_state.unanswered_df = st.session_state.unanswered_df.drop(drop_indexes)
@@ -119,7 +115,7 @@ word_series = analyze_texts(texts, pecab)
 
 unanswered_df = st.session_state.unanswered_df
 
-#[20240912 강태영] 데이터 프레임에 데이터가 있는지 확인
+# [20240912 강태영] 데이터 프레임에 데이터가 있는지 확인
 if unanswered_df.empty:
     st.info("저장된 매뉴얼이 없습니다. 매뉴얼을 업로드 해주세요", icon="ℹ️")
 else:
@@ -159,7 +155,7 @@ else:
                 unsafe_allow_html=True
             )
 
-            # Display paginated data
+    # Display paginated data
             paginated_df = paginate_data(filtered_df, batch_size, current_page)
             if paginated_df is not None:
                 edited_df = st.data_editor(

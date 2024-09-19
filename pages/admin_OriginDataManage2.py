@@ -90,7 +90,7 @@ else:
             invalid_input = True
 
     if invalid_input and has_filters:
-        st.error("선택하신 날짜의 문서가 존재하지 않습니다.")
+        st.warning("선택하신 날짜의 데이터가 존재하지 않습니다.", icon="⚠️")
     else:
         # 필터 적용
         filtered_df = original_pdf_df.copy()  # 필터링 전 전체 데이터를 기본으로 표시
