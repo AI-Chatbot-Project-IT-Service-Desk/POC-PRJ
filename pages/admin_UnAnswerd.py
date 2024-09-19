@@ -96,7 +96,7 @@ def removeData(selected_rows):
     st.session_state.unanswered_df = st.session_state.unanswered_df.drop(drop_indexes)
 
     #DB 삭제
-    hcs.remove_selected_unanswred(drop_indexes)
+    hcs.remove_selected_unanswered(drop_indexes)
 
     #파일 삭제 알림
     delete_row_count = len(drop_indexes)

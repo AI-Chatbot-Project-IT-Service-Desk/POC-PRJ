@@ -322,7 +322,7 @@ def select_all_unansweredquestions_table():
     return df
 
 #[20240912 강태영]무응답 테이블 row 삭제
-def remove_selected_unanswred(drop_indexes):
+def remove_selected_unanswered(drop_indexes):
     index_map_list =  ", ".join(map(str, drop_indexes))
 
     sql = '''delete from gen_ai.cesco_unansweredquestions
