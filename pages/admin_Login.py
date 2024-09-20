@@ -19,8 +19,6 @@ def check_admin_login(admin_password):
     
     admin_password = False
     
-# def Login_Input():
-
 if st.session_state._role == "관리자": 
     admin_password = st.text_input("관리자 비밀번호를 입력하세요",
                                     placeholder="enter password..",

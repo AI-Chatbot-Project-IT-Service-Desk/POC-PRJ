@@ -73,3 +73,16 @@ if uploaded_file is not None:
             my_bar.empty()            
             st.success(f"파일 업로드 성공: {uploaded_file.name}")
             st.empty()
+
+
+# 업로드 후 원본 데이터 관리 페이지 변경해주기
+df = hcs.select_all_filenames_table()
+df = df.set_index("CodeID")
+# DataFrame 이름 지정
+df.columns = ["파일명", "생성날짜", "매뉴얼링크"]
+#[20240911 강태영] s3 link url 붙이기
+df["매뉴얼링크"] = oss.getUrl() + df["매뉴얼링크"]
+# '생성날짜' 컬럼을 datetime 형식으로 변환
+df["생성날짜"] = pd.to_datetime(df['생성날짜'], errors='coerce')
+
+st.session_state.original_pdf_df = df

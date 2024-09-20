@@ -10,6 +10,20 @@ from server import object_store_service as oss
 from server import hana_cloud_service as hcs
 from server import pdf_split as ps
 
+# CSS 스타일 적용 (버튼 텍스트를 왼쪽 정렬)
+st.markdown("""
+            <style>
+            .stButton button {
+            text-align: left;
+            width: 100%;
+            disply: flex;
+            justify-content: flex-start;
+            background-color: #fafafa;  /* 옅은 회색 */
+            color: black;  
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
 # Redirect to app.py if not logged in, otherwise show the navigation menu
 menu_with_redirect()
 
@@ -34,7 +48,13 @@ if "selected_question" not in st.session_state:
 
 def submit_recommended_question(question):
     st.session_state.selected_question = question
-    print("메타몽2", st.session_state.selected_question)
+
+#[20240911 강태영] 미응답 버튼 클릭시 evnet 묶음
+def handle_unanswered_click_event(unquestion):
+    if hcs.upload_unanswered_data(unquestion):
+        st.toast("질문이 등록 되었습니다.", icon="🥳")
+    else:
+        st.toast("이미 등록된 질문입니다", icon="😊")
 
 # Function to display the chat history
 def display_chat():
@@ -45,15 +65,11 @@ def display_chat():
             st.markdown(message["content"])
 
             if message.get("button"):
-                st.download_button(label = message["button"]["label"],
-                                   data = message["button"]["data"],
-                                   file_name = message["button"]["file_name"],
-                                   key = message["button"]["key"],
-                                   mime='application/octet-stream')
+                st.link_button(message["button"]["label"], message["button"]["s3_link"])
         
             if message.get("button_group"):
                 st.markdown("---")
-                st.markdown("**이와 관련된 다른 질문들도 확인해보세요:**")
+                st.markdown("**💡이와 관련된 다른 질문들도 확인해보세요:**")
                     
                 st.button(label = message["button_group"]["r1"],
                           key = message["button_group"]["r1_key"],
@@ -78,7 +94,8 @@ def display_chat():
             if message.get("un_answer_button"):
                 st.button(label = message["un_answer_button"]["label"],
                           key = message["un_answer_button"]["key"],
-                          on_click = hcs.upload_unanswered_data(message["un_answer_button"]["data"]))
+                          on_click = handle_unanswered_click_event,
+                          kwargs={"unquestion": message["un_answer_button"]["data"]})
 
 # Display the chat history
 display_chat()
@@ -88,7 +105,7 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-
+    
     #k1~k5
     df_context = hcs.run_vector_search(query=prompt, metric="L2DISTANCE", k=5)
     #k1
@@ -100,8 +117,8 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
     if df_context_k1["L2D_SIM"] >= 0.5: #미응답 분류
         response = "해당 질문과 관련된 답변이 아직 준비되지 못했습니다."
 
-        un_answer_button = {"label": "미응답 질문 등록", 
-                            "key": st.session_state.unanswered_num,
+        un_answer_button = {"label": "⚠️ 미응답 질문 등록", 
+                            "key": "un" + str(st.session_state.unanswered_num),
                             "data": prompt}
         
         #key 등록 후 증가
@@ -117,28 +134,30 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
             st.markdown(response)
             st.button(  label = un_answer_button["label"],
                         key = un_answer_button["key"],
-                        on_click = hcs.upload_unanswered_data(un_answer_button["data"]))
+                        on_click = handle_unanswered_click_event,
+                        kwargs={"unquestion": un_answer_button["data"]})
             
     else: #답변
         #k1 답변
         response = hcs.ask_llm(query=prompt, k1_context=df_context_k1)
 
         #k2~k5 recommend
-        recommend_group = {"r1": df_context.iloc[1]["ProblemDescription"], "r1_key": df_context.iloc[1]["SolutionDoc"]+str(st.session_state.answered_num),
-                        "r2": df_context.iloc[2]["ProblemDescription"], "r2_key": df_context.iloc[2]["SolutionDoc"]+str(st.session_state.answered_num),
-                        "r3": df_context.iloc[3]["ProblemDescription"], "r3_key": df_context.iloc[3]["SolutionDoc"]+str(st.session_state.answered_num),
-                        "r4": df_context.iloc[4]["ProblemDescription"], "r4_key": df_context.iloc[4]["SolutionDoc"]+str(st.session_state.answered_num)}
+        recommend_group = {"r1": df_context.iloc[1]["ProblemDescription"], "r1_key": st.session_state.answered_num,
+                        "r2": df_context.iloc[2]["ProblemDescription"], "r2_key": st.session_state.answered_num+1,
+                        "r3": df_context.iloc[3]["ProblemDescription"], "r3_key": st.session_state.answered_num+2,
+                        "r4": df_context.iloc[4]["ProblemDescription"], "r4_key": st.session_state.answered_num+3}
         
         #key 조합 후 증가
-        st.session_state.answered_num += 1
+        st.session_state.answered_num += 4
         
         #매뉴얼 다운로드 버튼
         document_filecode = str(df_context_k1["SolutionDoc"])
         document_filename = str(df_context_k1["ProblemCategory"])
-        opf = oss.open_pdf_file(document_filecode, document_filename, "split")
-
-        button_info = {"label": "매뉴얼 보기", "data": opf['data'], "file_name":opf['file_name'], "key":opf['file_name']}
         
+        #object store s3 host url
+        document_url = oss.getUrl() + document_filecode
+        button_info = {"label": "매뉴얼 확인하기", "s3_link": document_url}
+
         st.session_state.messages.append({
             "role": "assistant",
             "content": response,
@@ -149,14 +168,11 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
         # Display the assistant's response
         with st.chat_message("assistant"):
             st.markdown(response)
-            st.download_button(label= button_info["label"],
-                            data = button_info["data"],
-                            file_name = button_info["file_name"],
-                            key = button_info["key"],
-                            mime='application/octet-stream')
+
+            st.link_button(button_info["label"], button_info["s3_link"])
                    
             st.markdown("---")
-            st.markdown("**이와 관련된 다른 질문들도 확인해보세요:**")
+            st.markdown("**이와 관련된 다른 질문들도 확인해보세요 :**")
                 
             st.button(label = recommend_group["r1"], 
                       key = recommend_group["r1_key"],
@@ -177,4 +193,6 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                     key = recommend_group["r4_key"],
                     on_click=submit_recommended_question,
                     kwargs={"question": recommend_group["r4"]})
-
+            
+#[20240912 강태영] 다 하고 나서 초기화 하기
+st.session_state.selected_question = ""
