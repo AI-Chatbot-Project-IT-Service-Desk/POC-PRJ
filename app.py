@@ -1,18 +1,21 @@
 import streamlit as st
-from importlib import import_module
+from menu import menu
 
-# 관리자 비밀번호 설정
-ADMIN_PASSWORD = "0000"  
+# Initialize st.session_state.role to "사용자"
+if "role" not in st.session_state:
+    st.session_state.role = "사용자"
 
+# 관리자로서 로그인 인증을 완료했는지 여부
+if 'authenticated' not in st.session_state:
+    st.session_state.authenticated = False
 
-def main():
-    #사이드바 상단에 이미지 추가
-    st.sidebar.image("path/to/your/image.png", use_column_width=True)
+st.session_state._role = st.session_state.role
 
-    # 세션 상태 초기화
-    if 'authenticated' not in st.session_state:
-        st.session_state.authenticated = False
+menu()
 
+<<<<<<< HEAD
+st.switch_page("pages/user_CescoBotHome.py")
+=======
     # 사이드바에 카테고리별로 페이지 링크 추가
     category = st.sidebar.selectbox("카테고리", ["사용자 페이지", "관리자 페이지"])
 
@@ -66,3 +69,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+>>>>>>> 83697651b31aab962715e87546dfbc9e4618344a

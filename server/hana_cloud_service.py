@@ -12,6 +12,9 @@ from gen_ai_hub.proxy.native.openai import embeddings
 from langchain_core.prompts import PromptTemplate
 from gen_ai_hub.proxy.langchain.openai import ChatOpenAI
 from gen_ai_hub.proxy.core.proxy_clients import get_proxy_client
+
+from server import gen_ai_model_service as gams
+
 proxy_client = get_proxy_client('gen-ai-hub')
 
 #연결
@@ -145,12 +148,21 @@ def select_all_problemsolutions_table():
     return df_result
 
 #[20240902 강태영] 임베딩
+<<<<<<< HEAD
+# def get_embedding(input, model="dc872f9eef04c31a") -> str:
+#     response = embeddings.create(
+#         deployment_id = model,
+#         input = input
+#     )
+#     return response.data[0].embedding
+=======
 def get_embedding(input, model="d9a348467d50ad18") -> str:
     response = embeddings.create(
         deployment_id = model,
         input = input
     )
     return response.data[0].embedding
+>>>>>>> 83697651b31aab962715e87546dfbc9e4618344a
 
 #[20240902 강태영] 벡터서치
 def run_vector_search(query: str, metric="COSINE_SIMILARITY", k=5):
@@ -161,7 +173,7 @@ def run_vector_search(query: str, metric="COSINE_SIMILARITY", k=5):
         sort = 'DESC'
         col = 'COS_SIM'
 
-    query_vector = get_embedding(query)
+    query_vector = gams.get_embedding(query)
 
     sql = '''SELECT TOP {k} "ProblemDescription","ProblemCategory", "ProblemKeyword",
     "Solution","SolutionDoc", "AdditionalInfo",
@@ -199,6 +211,7 @@ def ask_llm(query: str, k1_context: pd.Series) -> str:
     prompt = promptTemplate.format(query=query, context=context)
     print('\nAsking LLM...')
     llm = ChatOpenAI(deployment_id="d03974e89ef130ad", temperature=0)
+    #llm = ChatOpenAI(deployment_id="d36b7697328746e0", temperature=0)
 
     response = llm.invoke(prompt)
     print("[LOG] 답변 생성 완료")
