@@ -130,7 +130,7 @@ unanswered_df = st.session_state.unanswered_df
 
 # [20240912 강태영] 데이터 프레임에 데이터가 있는지 확인
 if unanswered_df.empty:
-    st.info("저장된 매뉴얼이 없습니다. 매뉴얼을 업로드 해주세요", icon="ℹ️")
+    st.info("저장된 미응답 데이터가 존재하지 않습니다.", icon="ℹ️")
 else:
     with dashboard_placeholder.container():
         display_dashboard(word_series, unanswered_df)
@@ -154,22 +154,9 @@ else:
         # total_pages가 0일 때 페이지네이션 건너뛰기
         if total_pages > 0:
             current_page = top_menu[1].number_input("Page", min_value=1, max_value=total_pages, step=1, key="current_page")
-            top_menu[0].markdown(f"Page **{current_page}** of **{total_pages}** ")
-
-            # Add custom CSS to style the data editor
-            st.markdown(
-                """
-                <style>
-                .stDataFrame .checkboxColumn {
-                    width: 10px !important; 
-                }
-                </style>
-                """,
-                unsafe_allow_html=True
-            )
-
-            # Display "전체 선택" 체크박스
-            select_all_checkbox = st.checkbox("전체 선택", key="select_all")
+            with top_menu[0]:
+                st.markdown(f"Page **{current_page}** of **{total_pages}** ")
+                select_all_checkbox = st.checkbox("전체 선택", key="select_all")
 
             # Display paginated data
             paginated_df = paginate_data(filtered_df, batch_size, current_page)
