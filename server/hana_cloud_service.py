@@ -207,7 +207,7 @@ def ask_llm(query: str, k1_context: pd.Series) -> str:
 #[20240904 강태영] 무응답 답변 등록 
 def upload_unanswered_data(unquestion: str):
 
-    #미응답 테이블에 똑같은 질문이 들어 있다면 INSERT 하지 않는다
+    #무응답 테이블에 똑같은 질문이 들어 있다면 INSERT 하지 않는다
     sql = '''SELECT count(*) FROM gen_ai.cesco_unansweredquestions
             WHERE "QuestionText" = '{text}' '''.format(text=unquestion)
     

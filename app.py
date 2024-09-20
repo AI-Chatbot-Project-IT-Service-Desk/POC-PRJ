@@ -35,7 +35,7 @@ def main():
             elif page == "Manual List":
                 module = import_module("pages.User_page.Manual_List")
         elif category == "관리자 페이지":
-            page = st.sidebar.radio("페이지 선택", ["Cesco-Bot Home", "Manual List", "원본 데이터 관리", "QnA 데이터 관리", "미응답 데이터 관리"])
+            page = st.sidebar.radio("페이지 선택", ["Cesco-Bot Home", "Manual List", "원본 데이터 관리", "QnA 데이터 관리", "무응답 데이터 관리"])
             if page == "Cesco-Bot Home":
                 module = import_module("pages.User_page.CescoBot_Home")
             elif page == "Manual List":
@@ -44,7 +44,7 @@ def main():
                 module = import_module("pages.Manager_page.RawManage")
             elif page == "QnA 데이터 관리":
                 module = import_module("pages.Manager_page.QnAManage")
-            elif page == "미응답 데이터 관리":
+            elif page == "무응답 데이터 관리":
                 module = import_module("pages.Manager_page.NoAnswer")
 
         # 모듈 실행
