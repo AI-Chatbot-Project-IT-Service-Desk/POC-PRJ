@@ -2,6 +2,7 @@ import os
 import io
 import sys
 import streamlit as st
+from streamlit import session_state as ss
 import pandas as pd
 import pecab
 import matplotlib.pyplot as plt
@@ -107,6 +108,18 @@ def removeData(selected_rows):
     delete_row_count = len(drop_indexes)
     st.toast(f"{delete_row_count}건의 파일이 삭제되었습니다.", icon="🗑️")
 
+# [20240919 강태영] 무응답 테이블 상태 수정 함수
+def data_editor_changed():
+    info_dict = ss.ed["edited_rows"]
+    updated_row_index = next(iter(info_dict))
+
+    if '처리상태' in info_dict[updated_row_index]:
+        update_state_index = ss.edited_df.index[updated_row_index]
+        update_state_value = info_dict[updated_row_index]['처리상태']
+        hcs.updated_unanswered_status(update_state_index, update_state_value)
+
+        st.toast("처리상태가 변경되었습니다.", icon="✔️")
+
 # Main UI
 st.title("무응답 데이터 관리 페이지")
 
@@ -117,7 +130,11 @@ unanswered_df = st.session_state.unanswered_df
 
 # [20240912 강태영] 데이터 프레임에 데이터가 있는지 확인
 if unanswered_df.empty:
+<<<<<<< HEAD
     st.info("아직 저장된 미응답이 없습니다.", icon="ℹ️")
+=======
+    st.info("저장된 미응답 데이터가 존재하지 않습니다.", icon="ℹ️")
+>>>>>>> 78171a322ad8603520d258bb0ff297ec6e764bc6
 else:
     with dashboard_placeholder.container():
         display_dashboard(word_series, unanswered_df)
@@ -143,6 +160,7 @@ else:
             current_page = top_menu[1].number_input("Page", min_value=1, max_value=total_pages, step=1, key="current_page")
             with top_menu[0]:
                 st.markdown(f"Page **{current_page}** of **{total_pages}** ")
+<<<<<<< HEAD
                 select_all = st.checkbox('전체 선택')
 
             # Add custom CSS to style the data editor
@@ -158,9 +176,21 @@ else:
             # )
 
     # Display paginated data
+=======
+                select_all_checkbox = st.checkbox("전체 선택", key="select_all")
+
+            # Display paginated data
+>>>>>>> 78171a322ad8603520d258bb0ff297ec6e764bc6
             paginated_df = paginate_data(filtered_df, batch_size, current_page)
+
+            # If 전체 선택 is checked, select all checkboxes in the current page
+            if select_all_checkbox:
+                paginated_df.loc[:, "선택"] = True  # .loc[]로 슬라이스 경고 해결
+            else:
+                paginated_df.loc[:, "선택"] = False  # .loc[]로 슬라이스 경고 해결
+
             if paginated_df is not None:
-                edited_df = st.data_editor(
+                ss.edited_df = st.data_editor(
                     paginated_df, 
                     column_config={
                         "선택": st.column_config.CheckboxColumn("", width="tiny"),  # 첫 번째 컬럼 너비 조정
@@ -171,10 +201,12 @@ else:
                     },
                     use_container_width=True,
                     hide_index=True,
+                    key='ed',
+                    on_change=data_editor_changed
                 )
 
                 # Update session state with selected rows
-                selected_rows = edited_df[edited_df['선택'] == True]
+                selected_rows = ss.edited_df[ss.edited_df['선택'] == True]
 
                 # 버튼을 우측 하단에 배치하기 위한 레이아웃 설정
                 button_placeholder = st.empty()  # 버튼 자리를 미리 비워둠
@@ -184,11 +216,11 @@ else:
                     col1, col2, col3 = st.columns([5, 2, 1])  # 첫 번째 열은 넓게, 두 번째, 세 번째 열에 버튼 배치
                     with col2:
                         # 데이터 다운로드 버튼
-                        file_data = create_download_link(selected_rows, "selected_data.csv")
+                        file_data = create_download_link(selected_rows, "무응답데이터 다운로드.csv")
                         st.download_button(
                             "데이터 다운로드",
                             file_data,
-                            "selected_data.csv",
+                            "무응답데이터 다운로드.csv",
                             mime="text/csv",
                             disabled=selected_rows.empty
                         )
