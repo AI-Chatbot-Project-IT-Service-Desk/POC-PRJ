@@ -1,6 +1,6 @@
 '''
 작성일: 2024-08-21
-설명: 미응답 로직 테스트 파일
+설명: 무응답 로직 테스트 파일
 '''
 import os
 import json
@@ -12,7 +12,7 @@ from gen_ai_hub.proxy.native.openai import embeddings
 
 # CESCO_UNANSWEREDQUESTIONS Table Select 함수
 def get_unanswerd_questions_data():
-    with open(os.path.join(os.getcwd(), '../config/cesco-poc-hc-service-key.json')) as f:
+    with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
         hana_env_c = json.load(f)
         port_c = hana_env_c['port']
         user_c = hana_env_c['user']

@@ -22,14 +22,14 @@ pecab = pecab.PeCab()
 if "unanswered_df" not in st.session_state:
     df = hcs.select_all_unansweredquestions_table()
     df = df.set_index("QuestionID")
-    df.columns = ['생성날짜', '처리날짜', '미응답 내용', '처리상태']
+    df.columns = ['생성날짜', '처리날짜', '무응답 내용', '처리상태']
     df['생성날짜'] = pd.to_datetime(df['생성날짜'], errors='coerce')
     df['처리날짜'] = pd.to_datetime(df['처리날짜'], errors='coerce')
     df.insert(0, "선택", False)
 
     st.session_state.unanswered_df = df
 
-texts = st.session_state.unanswered_df['미응답 내용'].tolist()
+texts = st.session_state.unanswered_df['무응답 내용'].tolist()
 
 # Analyze and visualize texts
 def analyze_texts(texts, pecab, top_n=10):
@@ -76,7 +76,7 @@ def filter_data(unanswered_df, period_filter=None, period_filter2=None, category
     if period_filter2:
         unanswered_df = unanswered_df[unanswered_df['처리날짜'].dt.date == period_filter2]
     if category_filter != "전체":
-        unanswered_df = unanswered_df[unanswered_df['미응답 내용'] == category_filter]
+        unanswered_df = unanswered_df[unanswered_df['무응답 내용'] == category_filter]
 
     # 데이터가 없으면 문구 출력
     if unanswered_df.empty and not original_df.empty:
@@ -85,8 +85,13 @@ def filter_data(unanswered_df, period_filter=None, period_filter2=None, category
 
 # Pagination
 def paginate_data(filtered_df, batch_size, current_page):
-    pages = [filtered_df.iloc[i:i + batch_size] for i in range(0, len(filtered_df), batch_size)]
-    return pages[current_page - 1] if pages else None
+    if batch_size == "전체":
+        return filtered_df  # 전체 데이터를 반환
+    else:
+        batch_size = int(batch_size)  # 문자열이 아닌 정수형으로 변환
+        pages = [filtered_df.iloc[i:i + batch_size] for i in range(0, len(filtered_df), batch_size)]
+        return pages[current_page - 1] if pages else None
+
 
 # Download CSV
 def create_download_link(df, file_name):
@@ -130,16 +135,16 @@ unanswered_df = st.session_state.unanswered_df
 
 # [20240912 강태영] 데이터 프레임에 데이터가 있는지 확인
 if unanswered_df.empty:
-    st.info("저장된 미응답 데이터가 존재하지 않습니다.", icon="ℹ️")
+    st.info("저장된 무응답 데이터가 존재하지 않습니다.", icon="ℹ️")
 else:
     with dashboard_placeholder.container():
         display_dashboard(word_series, unanswered_df)
 
     # Filters
-    col1, col2, col3 = st.columns(3)
-    period_filter = col1.date_input("생성날짜", key="period_filter_3", value=None)
-    period_filter2 = col2.date_input("처리날짜", key="period_filter_4", value=None)
-    category_filter = col3.selectbox("미응답 내용", ["전체"] + list(unanswered_df['미응답 내용'].unique()), key="unanswered_filter_1")
+    filter_col = st.columns((1, 1, 3))
+    period_filter = filter_col[0].date_input("생성날짜", key="period_filter_3", value=None)
+    period_filter2 = filter_col[1].date_input("처리날짜", key="period_filter_4", value=None)
+    category_filter = filter_col[2].selectbox("무응답 내용", ["전체"] + list(unanswered_df['무응답 내용'].unique()), key="unanswered_filter_1")
 
     filtered_df, no_data_warning = filter_data(unanswered_df, period_filter, period_filter2, category_filter)
 
@@ -148,12 +153,21 @@ else:
     else:
         # Pagination controls
         top_menu = st.columns((3, 1, 1))
-        batch_size = top_menu[2].selectbox("Page Size", [5, 10, 20, 30, 40, 50], key="batch_size")
-        total_pages = (len(filtered_df) // batch_size) + (1 if len(filtered_df) % batch_size else 0)
+        batch_size = top_menu[2].selectbox("Page Size", ["전체", 5, 10, 20, 30, 40, 50], key="batch_size")
+        if batch_size == "전체":
+            total_pages = 1
+            current_page = 1
+        else:
+            batch_size = int(batch_size)
+            total_pages = (len(filtered_df) // batch_size) + (1 if len(filtered_df) % batch_size else 0)
 
         # total_pages가 0일 때 페이지네이션 건너뛰기
         if total_pages > 0:
-            current_page = top_menu[1].number_input("Page", min_value=1, max_value=total_pages, step=1, key="current_page")
+            if batch_size != "전체":
+                current_page = top_menu[1].number_input("Page", min_value=1, max_value=total_pages, step=1, key="current_page")
+            else:
+                current_page = 1
+
             with top_menu[0]:
                 st.markdown(f"Page **{current_page}** of **{total_pages}** ")
                 select_all_checkbox = st.checkbox("전체 선택", key="select_all")
@@ -174,7 +188,7 @@ else:
                         "선택": st.column_config.CheckboxColumn("", width="tiny"),  # 첫 번째 컬럼 너비 조정
                         "생성날짜": st.column_config.DateColumn(disabled=True),
                         "처리날짜": st.column_config.DateColumn(disabled=True),
-                        "미응답 내용": st.column_config.TextColumn(disabled=True),
+                        "무응답 내용": st.column_config.TextColumn(disabled=True),
                         "처리상태": st.column_config.SelectboxColumn(options=["미처리", "처리 완료", "보류"], width="small", required=True)
                     },
                     use_container_width=True,
@@ -182,7 +196,7 @@ else:
                     key='ed',
                     on_change=data_editor_changed
                 )
-                
+
                 # Update session state with selected rows
                 selected_rows = ss.edited_df[ss.edited_df['선택'] == True]
 
@@ -191,7 +205,7 @@ else:
 
                 # 버튼을 우측 하단에 배치
                 with button_placeholder.container():
-                    col1, col2, col3 = st.columns([5, 2, 1])  # 첫 번째 열은 넓게, 두 번째, 세 번째 열에 버튼 배치
+                    col1, col2, col3 = st.columns([6, 2, 1])  # 첫 번째 열은 넓게, 두 번째, 세 번째 열에 버튼 배치
                     with col2:
                         # 데이터 다운로드 버튼
                         file_data = create_download_link(selected_rows, "무응답데이터 다운로드.csv")
