@@ -5,28 +5,6 @@ import io
 import boto3
 from botocore.exceptions import ClientError
 
-# s3_configure_path = './config/cesco-poc-os-service-key-1.txt'
-
-# with open(os.path.join(os.getcwd(), s3_configure_path)) as f:
-#     os_env_c = json.load(f)
-#     aws_access_key_id = os_env_c['access_key_id']
-#     aws_secret_access_key = os_env_c['secret_access_key']
-#     aws_region = os_env_c['region']
-        
-#     ### Update path 
-#     aws_url = os.path.join('s3://', os_env_c['bucket'])
-
-# storage_options = {
-#     "aws_access_key_id": aws_access_key_id, 
-#     "aws_secret_access_key": aws_secret_access_key,
-#     "aws_region": aws_region
-# }
-
-# aws_pdf_path = os.path.join(aws_url + '/', 'cesco_division_file')
-# store = ObjectStore(aws_pdf_path, storage_options)
-    
-#print("[store path]", store.list())
-
 # S3 설정 경로
 s3_configure_path = './config/cesco-poc-os-service-key-1.txt'
 

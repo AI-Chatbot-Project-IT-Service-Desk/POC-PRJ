@@ -34,7 +34,7 @@ if "messages" not in st.session_state:
         {"role": "assistant", "content": "안녕하세요 세스코 서비스 데스크 AI 비서입니다. 무엇을 도와드릴까요?"}
     ]
 
-#[20240904 강태영] 미응답 질문 등록 버튼 key값
+#[20240904 강태영] 무응답 질문 등록 버튼 key값
 if "unanswered_num" not in st.session_state:
     st.session_state.unanswered_num = 0
 
@@ -49,7 +49,7 @@ if "selected_question" not in st.session_state:
 def submit_recommended_question(question):
     st.session_state.selected_question = question
 
-#[20240911 강태영] 미응답 버튼 클릭시 evnet 묶음
+#[20240911 강태영] 무응답 버튼 클릭시 evnet 묶음
 def handle_unanswered_click_event(unquestion):
     if hcs.upload_unanswered_data(unquestion):
         st.toast("질문이 등록 되었습니다.", icon="🥳")
@@ -113,11 +113,11 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
 
     print("[LOG] L2_DISTANCE SCORE: ", df_context_k1["L2D_SIM"])
 
-    #[20240904 강태영] 미응답 분류 로직 추가
-    if df_context_k1["L2D_SIM"] >= 0.5: #미응답 분류
+    #[20240904 강태영] 무응답 분류 로직 추가
+    if df_context_k1["L2D_SIM"] >= 0.5: #무응답 분류
         response = "해당 질문과 관련된 답변이 아직 준비되지 못했습니다."
 
-        un_answer_button = {"label": "⚠️ 미응답 질문 등록", 
+        un_answer_button = {"label": "⚠️ 무응답 질문 등록", 
                             "key": "un" + str(st.session_state.unanswered_num),
                             "data": prompt}
         

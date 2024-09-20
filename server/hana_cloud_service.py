@@ -128,6 +128,14 @@ def select_all_filenames_table():
 
     return df_result
 
+def select_all_unansweredquestions_table():
+    sql = '''SELECT "CreateDate", "StatusUpdateDate", "QuestionText", "Status" FROM "CESCO_UNANSWEREDQUESTIONS"'''
+
+    hdf = cc.sql(sql)
+    df = hdf.collect()
+
+    return df
+
 #[20240830 강태영] QNA 테이블 조회
 def select_all_problemsolutions_table():
     sql1 = '''SELECT "ProblemCategory", "ProblemDescription", "CreateDate", "SolutionDoc" FROM gen_ai.cesco_problemsolutions;'''
@@ -138,7 +146,7 @@ def select_all_problemsolutions_table():
     return df_result
 
 #[20240902 강태영] 임베딩
-def get_embedding(input, model="dc872f9eef04c31a") -> str:
+def get_embedding(input, model="d9a348467d50ad18") -> str:
     response = embeddings.create(
         deployment_id = model,
         input = input
@@ -172,6 +180,7 @@ def run_vector_search(query: str, metric="COSINE_SIMILARITY", k=5):
     return df_context
 
 #[20240902 강태영] LangChain
+#한국어로 질문했을 때, 안 열려, 안돼 -> 오류로 인식해야 한다. (Prompt) 
 promptTemplate_fstring = """
 You are a friendly and helpful AI assistant.
 Based on the provided context, please answer the user's question in a clear and polite manner, ensuring the response is easy to understand. 
@@ -199,7 +208,7 @@ def ask_llm(query: str, k1_context: pd.Series) -> str:
 #[20240904 강태영] 무응답 답변 등록 
 def upload_unanswered_data(unquestion: str):
 
-    #미응답 테이블에 똑같은 질문이 들어 있다면 INSERT 하지 않는다
+    #무응답 테이블에 똑같은 질문이 들어 있다면 INSERT 하지 않는다
     sql = '''SELECT count(*) FROM gen_ai.cesco_unansweredquestions
             WHERE "QuestionText" = '{text}' '''.format(text=unquestion)
     

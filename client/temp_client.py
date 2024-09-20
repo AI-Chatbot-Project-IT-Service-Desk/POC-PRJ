@@ -55,7 +55,7 @@ def extract_content_from_page(page):
 def update_FileNamesDB(upload_file_name):
     result = "" 
 
-    with open(os.path.join(os.getcwd(), '../config/cesco-poc-hc-service-key.json')) as f:
+    with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
         hana_env_c = json.load(f)
         port_c = hana_env_c['port']
         user_c = hana_env_c['user']
@@ -175,7 +175,7 @@ def repeat_split_pdf(uploaded_file, page_output_dir, filename):
 
 #[20240807] Object Store 업로드
 def object_store_upload(uploaded_file, filecode, cesco_division_folder_path):
-    s3_configure_path = '../config/s3-service-key-cesco1-interim.txt'
+    s3_configure_path = './config/cesco-poc-os-service-key-1.txt'
 
     with open(os.path.join(os.getcwd(), s3_configure_path)) as f:
         os_env_c = json.load(f)
@@ -344,7 +344,7 @@ def extract_pdf_to_dataframe(uploaded_file, split_file_list):
 #[20240812 강태영] HANA Cloud 에 Dataframe row 단위로 집어넣는 로직
 def upload_dataframe_toh_hanacloud(extract_dataframe):
     #파일명이 같을 때의 경우 처리 방법 고민 필요(2024-08-12)
-    with open(os.path.join(os.getcwd(), '../config/cesco-poc-hc-service-key.json')) as f:
+    with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) as f:
         hana_env_c = json.load(f)
         port_c = hana_env_c['port']
         user_c = hana_env_c['user']

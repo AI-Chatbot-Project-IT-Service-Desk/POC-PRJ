@@ -16,8 +16,9 @@ streamlit
 sentence_transformers
 PyPDF2
 pecab
-TfidfVectorizer
+scikit-learn
 Counter
 koreanize_matplotlib
 matplotlib
-pyplot
+boto3
+botocore
