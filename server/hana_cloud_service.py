@@ -200,8 +200,8 @@ def ask_llm(query: str, k1_context: pd.Series) -> str:
     context = f"""category: {k1_context["ProblemCategory"]}, keyword: {k1_context["ProblemKeyword"]}, content: {k1_context["ProblemDescription"]}, {k1_context["Solution"]}, etc: {k1_context["AdditionalInfo"]}"""
     prompt = promptTemplate.format(query=query, context=context)
     print('\nAsking LLM...')
-    #llm = ChatOpenAI(deployment_id="d03974e89ef130ad", temperature=0)
-    llm = ChatOpenAI(deployment_id="d36b7697328746e0", temperature=0)
+    llm = ChatOpenAI(deployment_id="d03974e89ef130ad", temperature=0)
+    #llm = ChatOpenAI(deployment_id="d36b7697328746e0", temperature=0)
 
     response = llm.invoke(prompt)
     print("[LOG] 답변 생성 완료")
