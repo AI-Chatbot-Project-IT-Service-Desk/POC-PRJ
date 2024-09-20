@@ -54,8 +54,8 @@ if uploaded_file is not None:
 
             # #Upload Object Store S3
             my_bar.progress(0.4, text="📦Uploading a file to the Cloud storage...")
-            print("[LOG] filecode type", type(filecode))
-            print("[LOG] filecode", filecode)
+            # print("[LOG] filecode type", type(filecode))
+            # print("[LOG] filecode", filecode)
             oss.object_store_upload(uploaded_file, str(filecode), page_output_dir)
 
             # #Upload할 DataFrame 생성

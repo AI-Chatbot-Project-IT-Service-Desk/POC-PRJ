@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 from gen_ai_hub.proxy.native.openai import embeddings
 import shutil
+from server import gen_ai_model_service as gams
 # from transformers import AutoTokenizer, AutoModel
 # import torch
 # import tokenizers
@@ -158,25 +159,12 @@ def repeat_split_pdf(uploaded_file, page_output_dir, filename):
 
 #[20240812 강태영] 문제 벡터화 함수
 #azure-openai-text-embedding 모델
-def get_embedding_gen_ai(input, model = "dc872f9eef04c31a") -> str:
-    response = embeddings.create(
-        deployment_id = model,
-        input = input
-    )
-    return response.data[0].embedding
-
-#[20240822 강태영] Huggingface 벡터화 함수
-# tokenizer = AutoTokenizer.from_pretrained("jhgan/ko-sroberta-multitask")
-# model = AutoModel.from_pretrained("jhgan/ko-sroberta-multitask")
-# def get_embedding_huggingface(input: str) -> torch.Tensor:
-#     inputs = tokenizer(input, return_tensors="pt")
-#     with torch.no_grad():
-#         outputs = model(**inputs)
-#     embedding_tensor = outputs.last_hidden_state.mean(dim=1)
-    
-#     # Convert the embedding tensor to a list
-#     embedding_list = embedding_tensor.squeeze().tolist()
-#     return embedding_list
+# def get_embedding_gen_ai(input, model = "dc872f9eef04c31a") -> str:
+#     response = embeddings.create(
+#         deployment_id = model,
+#         input = input
+#     )
+#     return response.data[0].embedding
 
 #[20240819 강태영] 자식 PDF → PROBLEMSOLUTIONS DB의 ROW로 생성 → HANA CLOUD UPDATE
 def extreact_pdf_to_dataframe(page_output_dir):
@@ -244,7 +232,7 @@ def extreact_pdf_to_dataframe(page_output_dir):
         try: 
             #[20240830 강태영] 제목만 벡터화 하지 않고 제목과 키워드도 같이 벡터화한다
             vector_text = f"keyword: {keyword}, content: {title}"
-            title_vector = get_embedding_gen_ai(vector_text)
+            title_vector = gams.get_embedding(vector_text)
         except Exception as e:
             print(e)
 

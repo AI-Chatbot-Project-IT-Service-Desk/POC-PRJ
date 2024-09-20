@@ -40,7 +40,7 @@ def admin_menu():
         """
         <style>
         .spacer {
-            height: 40vh;  /* 높이를 화면의 40%로 설정 */
+            height: 50vh;  /* 높이를 화면의 50%로 설정 */
         }
         </style>
         <div class="spacer"></div>
@@ -63,7 +63,7 @@ def menu():
 
 def menu_with_redirect():
     if "role" not in st.session_state or st.session_state.role is None:
-        st.switch_page("app2.py")
+        st.switch_page("app.py")
 
     st.session_state._role = st.session_state.role
     menu()
