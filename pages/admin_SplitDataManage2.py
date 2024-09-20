@@ -14,6 +14,7 @@ from server import object_store_service as oss
 menu_with_redirect()
 
 st.title("매뉴얼 데이터 관리 페이지")
+
 split_pdf_df = hcs.select_all_problemsolutions_table()
 
 split_pdf_df.columns = ["파일명", "문제명", "생성날짜", "매뉴얼링크"]

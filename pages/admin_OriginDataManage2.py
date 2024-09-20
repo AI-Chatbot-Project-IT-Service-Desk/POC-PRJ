@@ -13,7 +13,10 @@ from server import object_store_service as oss
 # Redirect to app.py if not logged in, otherwise show the navigation menu
 menu_with_redirect()
 
-st.title("매뉴얼 원본 데이터 관리 페이지")
+st.subheader("매뉴얼 원본 데이터 관리 페이지")
+
+# 회색 라인 추가
+st.markdown("<hr style='border: 0.05px solid lightgray;'>", unsafe_allow_html=True)
 
 # 첫 데이터 프레임
 if "original_pdf_df" not in st.session_state:

@@ -136,7 +136,7 @@ else:
         display_dashboard(word_series, unanswered_df)
 
     # Filters
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns([1, 1, 3])
     period_filter = col1.date_input("생성날짜", key="period_filter_3", value=None)
     period_filter2 = col2.date_input("처리날짜", key="period_filter_4", value=None)
     category_filter = col3.selectbox("미응답 내용", ["전체"] + list(unanswered_df['미응답 내용'].unique()), key="unanswered_filter_1")

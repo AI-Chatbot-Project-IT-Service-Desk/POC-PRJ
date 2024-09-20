@@ -20,6 +20,7 @@ with open(os.path.join(os.getcwd(), './config/cesco-poc-hc-service-key.json')) a
     port_c = hana_env_c['port']
     user_c = hana_env_c['user']
     host_c = hana_env_c['host']
+    
     pwd_c = hana_env_c['pwd']
 
 cc = ConnectionContext(address=host_c, port=port_c, user=user_c, password=pwd_c, encrypt=True)
