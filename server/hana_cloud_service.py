@@ -148,21 +148,12 @@ def select_all_problemsolutions_table():
     return df_result
 
 #[20240902 강태영] 임베딩
-<<<<<<< HEAD
 # def get_embedding(input, model="dc872f9eef04c31a") -> str:
 #     response = embeddings.create(
 #         deployment_id = model,
 #         input = input
 #     )
 #     return response.data[0].embedding
-=======
-def get_embedding(input, model="d9a348467d50ad18") -> str:
-    response = embeddings.create(
-        deployment_id = model,
-        input = input
-    )
-    return response.data[0].embedding
->>>>>>> 83697651b31aab962715e87546dfbc9e4618344a
 
 #[20240902 강태영] 벡터서치
 def run_vector_search(query: str, metric="COSINE_SIMILARITY", k=5):

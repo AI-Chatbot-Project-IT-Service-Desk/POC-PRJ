@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cesco-ai-helpdesk
+  namespace: ai-cesco
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cesco-ai-helpdesk
+  template:
+    metadata:
+      labels:
+        app: cesco-ai-helpdesk
+        version: v1
+        sidecar.istio.io/inject: 'false'
+    spec:
+      containers:
+      - name: cesco-ai-helpdesk
+        image: chanran33/cesco-ai-helpdesk:0.0.1
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 100m
+            memory: 745Mi
+        ports:
+          - containerPort: 7860
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cesco-ai-helpdesk-service
+  namespace: ai-cesco
+spec:
+  selector:
+    app: cesco-ai-helpdesk
+  type: NodePort #LoadBalancer #ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 7860
+      targetPort: 7860
+
+---
+apiVersion: gateway.kyma-project.io/v1beta1
+kind: APIRule
+metadata:
+  name: cesco-ai-helpdesk-api-rule
+  namespace: ai-cesco
+spec:
+  gateway: kyma-gateway.kyma-system.svc.cluster.local
+  host: cesco-ai-helpdesk-api-rule.api.efeaa16.kyma.ondemand.com
+  service:
+    name: cesco-ai-helpdesk-service
+    port: 7860
+  rules:
+    - path: /.*
+      methods: ["GET", "POST"]
+      mutators: []
+      accessStrategies:
+        - handler: allow
+          config: {}
