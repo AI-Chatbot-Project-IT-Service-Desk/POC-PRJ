@@ -126,7 +126,21 @@ def data_editor_changed():
         st.toast("처리상태가 변경되었습니다.", icon="✔️")
 
 # Main UI
-st.title("무응답 데이터 관리 페이지")
+st.markdown("""
+    <style>
+    .title {
+        margin-bottom: 0px;  /* 타이틀과 구분선 사이의 간격을 줄임 */
+    }
+    .divider {
+        margin-top: 0px;  /* 구분선 위쪽의 간격을 줄임 */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# 컨테이너에 타이틀과 구분선을 배치
+with st.container():
+    st.markdown('<h3 class="title">무응답 관리 페이지</h3>', unsafe_allow_html=True)
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 dashboard_placeholder = st.empty()
 word_series = analyze_texts(texts, pecab)
