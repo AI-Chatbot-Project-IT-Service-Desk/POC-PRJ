@@ -13,10 +13,8 @@ RUN apt-get update && apt-get install -y expect
 # Custom location to place code files
 RUN mkdir -p /app/src
 WORKDIR /app/src
-# hanacloud
-COPY /config/cesco-poc-hc-service-key.json /app/src/config/cesco-poc-hc-service-key.json
-# aihub key
-COPY /config/aihub-key-teon.txt /app/src/config/aihub-key-teon.txt
+
+COPY /config/ /app/src/config/
 # app.py
 COPY app.py /app/src/app.py
 # menu.py

@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 s3_configure_path = './config/cesco-poc-os-service-key-1.txt'
 
 # S3 설정 파일 읽기
-with open(os.path.join(os.getcwd(), s3_configure_path)) as f:
+with open(os.path.abspath(os.path.join(os.getcwd(), s3_configure_path))) as f:
     os_env_c = json.load(f)
     aws_access_key_id = os_env_c['access_key_id']
     aws_secret_access_key = os_env_c['secret_access_key']
