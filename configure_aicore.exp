@@ -1,0 +1,19 @@
+#!/usr/bin/expect -f
+
+# Set timeout to prevent hanging if something goes wrong
+set timeout -1
+
+# Run the aicore configure command
+spawn aicore configure -k config/aihub-key-teon.txt
+
+# Optionally wait for some output if needed, for example:
+# expect "Please press Enter to continue"
+
+# Wait for a specific number of seconds before pressing Enter
+sleep 5 ;# Waits for 5 seconds. Adjust the number as necessary.
+
+# Press Enter to update Resource Group "Default"
+send -- "\r"
+
+# Wait for the process to finish
+expect eof
