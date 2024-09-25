@@ -2,6 +2,8 @@ import streamlit as st
 from menu import menu_with_redirect
 import os
 import sys
+import time
+import math
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'server'))
 #print("경로 확인", os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'server'))
@@ -95,13 +97,14 @@ def display_chat():
                 st.button(label = message["button_group"]["r4"],
                           key = message["button_group"]["r4_key"],
                           on_click=submit_recommended_question,
-                          kwargs={"question": message["button_group"]["r4"]})        
+                          kwargs={"question": message["button_group"]["r4"]})
 
 # Display the chat history
 display_chat()
 
 # User input
 if prompt := st.chat_input("Enter your question") or st.session_state.selected_question :
+    start = time.time()
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -229,6 +232,8 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                             key = recommend_group["r4_key"],
                             on_click=submit_recommended_question,
                             kwargs={"question": recommend_group["r4"]})
+    end = time.time()
+    print(f"{end - start:.5f} sec")
             
 #[20240912 강태영] 다 하고 나서 초기화 하기
 st.session_state.selected_question = ""

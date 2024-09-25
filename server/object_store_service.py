@@ -25,7 +25,7 @@ s3_client = boto3.client(
 )
 
 # 업로드할 경로
-aws_pdf_path = 'cesco_division_file'
+aws_pdf_path = 'cesco_division_file2'
 
 print("[START] SAP Object Store S3 Connect Success")
 

@@ -3,6 +3,8 @@ from menu import menu_with_redirect
 import pandas as pd
 import os
 import sys
+import math
+import time
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'server'))
 #print("경로 확인", os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'server'))
@@ -20,6 +22,7 @@ st.write("매뉴얼 업로드 페이지 입니다.")
 uploaded_file = st.file_uploader("PDF 파일을 업로드하세요", type="pdf")
 
 if uploaded_file is not None:
+    start = time.time()
     check_form = ps.check_form(uploaded_file)
 
     if(not check_form):
@@ -73,6 +76,8 @@ if uploaded_file is not None:
             my_bar.empty()            
             st.success(f"파일 업로드 성공: {uploaded_file.name}")
             st.empty()
+    end = time.time()
+    print(f"{end - start:.5f} sec")
 
 
 # 업로드 후 원본 데이터 관리 페이지 변경해주기
