@@ -11,7 +11,7 @@ with open("./config/cesco-poc-aicore-service-key1.json") as f:
 deployment_id = "d9db22d079747a76"
 resource_group = "oss-llm"
 
-ai_core_sk = config["ai_core_service_key"]
+ai_core_sk = config
 base_url = ai_core_sk.get("serviceurls").get("AI_API_URL") + "/v2/lm"
 ai_core_client = AICoreV2Client(base_url=ai_core_sk.get("serviceurls").get("AI_API_URL")+"/v2",
                         auth_url=ai_core_sk.get("url")+"/oauth/token",
@@ -20,7 +20,7 @@ ai_core_client = AICoreV2Client(base_url=ai_core_sk.get("serviceurls").get("AI_A
                         resource_group=resource_group)
 
 
-aic_sk = config["ai_core_service_key"]
+aic_sk = config
 base_url = aic_sk["serviceurls"]["AI_API_URL"] + "/v2/lm"
 ai_api_client = AIAPIV2Client(
     base_url=base_url,
@@ -37,15 +37,15 @@ headers = {
         "Content-Type": "application/json"}
 
 deployment = ai_api_client.deployment.get(deployment_id)
-# print(deployment)
+print(deployment)
 inference_base_url = f"{deployment.deployment_url}"
-# print(inference_base_url)
+print(inference_base_url)
 
 #뉴 코드
 def get_embedding(input) -> str: 
     
     endpoint = f"{inference_base_url}/embeddings?api-version=2023-05-15"
-    # print(endpoint)
+    print(endpoint)
     json_data = {
       "input": [
         input
