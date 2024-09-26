@@ -8,7 +8,7 @@ with open("./config/cesco-poc-aicore-service-key1.json") as f:
     config = json.load(f)
 
 #임베딩 모델
-deployment_id = "d4971d165d84d536"
+deployment_id = "d9db22d079747a76"
 resource_group = "oss-llm"
 
 ai_core_sk = config["ai_core_service_key"]
@@ -37,15 +37,15 @@ headers = {
         "Content-Type": "application/json"}
 
 deployment = ai_api_client.deployment.get(deployment_id)
-print(deployment)
+# print(deployment)
 inference_base_url = f"{deployment.deployment_url}"
-print(inference_base_url)
+# print(inference_base_url)
 
 #뉴 코드
 def get_embedding(input) -> str: 
     
-    endpoint = f"{inference_base_url}/v2/embeddings"
-    print(endpoint)
+    endpoint = f"{inference_base_url}/embeddings?api-version=2023-05-15"
+    # print(endpoint)
     json_data = {
       "input": [
         input
@@ -55,8 +55,8 @@ def get_embedding(input) -> str:
     if response.status_code != 200:
       raise ValueError(f"Request failed with status code {response.status_code}: {response.text}")
     try:
-        # x = json.loads(response.content)
-        x = response.json()
+        x = json.loads(response.content)
+        # x = response.json()
         return x['data'][0]['embedding']
     except (KeyError, IndexError, json.JSONDecodeError) as e:
         raise ValueError(f"Unexpected response format: {response.content}") from e
