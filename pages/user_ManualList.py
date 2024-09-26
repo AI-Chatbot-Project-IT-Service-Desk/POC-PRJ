@@ -91,7 +91,7 @@ else:
         # Page Size 설정
         top_menu = st.columns((3, 1, 1))
         with top_menu[2]:
-            batch_size = st.selectbox("Page Size", options=["전체", 3, 5, 10, 20, 30, 40, 50], key="batch_size")
+            batch_size = st.selectbox("Page Size", options=["전체", 5, 10, 20, 30, 40, 50], key="batch_size")
 
         # 페이지 나누기 처리
         if batch_size != "전체":
