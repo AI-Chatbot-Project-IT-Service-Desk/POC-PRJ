@@ -16,7 +16,7 @@ st.markdown("""
             .stButton button {
             text-align: left;
             width: 100%;
-            disply: flex;
+            display: flex;
             justify-content: flex-start;
             background-color: #fafafa;  /* 옅은 회색 */
             color: black;  

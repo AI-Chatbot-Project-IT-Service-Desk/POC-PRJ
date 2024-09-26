@@ -64,9 +64,9 @@ def display_dashboard(word_series, unanswered_df, status_column='처리상태', 
     top_word, top_word_count = word_series.idxmax(), word_series.max()
     completed_count = unanswered_df[unanswered_df[status_column] == completed_value].shape[0]
     
-    col1.metric("Most Common Word", top_word, f"{top_word_count} occurrences")
-    col2.metric("Missing Data Count", unanswered_df.shape[0])
-    col3.metric("Completion Rate", f"{(completed_count / unanswered_df.shape[0]) * 100:.2f}%")
+    col1.metric("가장 많이 검색된 키워드", top_word, f"{top_word_count} occurrences")
+    col2.metric("저장된 무응답 데이터", unanswered_df.shape[0])
+    col3.metric("무응답 처리율", f"{(completed_count / unanswered_df.shape[0]) * 100:.2f}%")
 
 # Filter Data
 def filter_data(unanswered_df, period_filter=None, period_filter2=None, category_filter="전체"):
@@ -91,7 +91,6 @@ def paginate_data(filtered_df, batch_size, current_page):
         batch_size = int(batch_size)  # 문자열이 아닌 정수형으로 변환
         pages = [filtered_df.iloc[i:i + batch_size] for i in range(0, len(filtered_df), batch_size)]
         return pages[current_page - 1] if pages else None
-
 
 # Download CSV
 def create_download_link(df, file_name):
@@ -125,8 +124,24 @@ def data_editor_changed():
 
         st.toast("처리상태가 변경되었습니다.", icon="✔️")
 
-# Main UI
-st.title("무응답 데이터 관리 페이지")
+st.markdown(""" 
+    <style>
+    .title {
+        margin-bottom: -40px;  /* 제목과 구분선 사이의 간격을 줄이기 */
+    }
+    .divider {
+        margin-top: 20px;  /* 구분선 위쪽의 간격을 늘리기 */
+        margin-bottom: 70px;  /* 구분선 아래쪽의 간격을 늘리기 */
+    }
+    .metrics {
+        margin-top: 30px;  /* 메트릭과 구분선 사이의 간격을 늘리기 */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+with st.container():
+    st.markdown('<h2 class="title">무응답 데이터 관리 페이지</h2>', unsafe_allow_html=True)
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 dashboard_placeholder = st.empty()
 word_series = analyze_texts(texts, pecab)
