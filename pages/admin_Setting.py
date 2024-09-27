@@ -35,13 +35,13 @@ st.selectbox(
 )
 
 if st.session_state._role == "관리자" and not st.session_state.authenticated:
-    st.text_input("관리자 비밀번호를 입력하세요",
+    pass_word = st.text_input("관리자 비밀번호를 입력하세요",
                     placeholder="enter password..",
                     type="password",
-                    key="admin_password")
+                    key="admin_password",
+                    on_change=check_admin_login)
 
     st.button("확인", on_click=check_admin_login)
 
 if st.session_state.role=="관리자" and st.session_state.authenticated:
-    #st.success("관리자 로그인에 성공했습니다. 좌측 상단의 [관리자] 선택이 가능합니다.", icon="✅")
     st.button(":material/Logout: logout", on_click=admin_logout, type="primary")

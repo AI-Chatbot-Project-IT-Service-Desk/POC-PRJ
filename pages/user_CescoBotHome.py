@@ -21,6 +21,17 @@ st.markdown("""
             background-color: #fafafa;  /* 옅은 회색 */
             color: black;  
             }
+
+            .stButton button[kind="primary"] {
+                border: 1px solid rgb(210 210 213);
+                background: none;
+                outline: none;
+            }
+
+            .stButton button[kind="primary"]:hover {
+                color: #ff2b2b;
+                border: 1px solid #ff2b2b;
+            }
             </style>
             """, unsafe_allow_html=True)
 
@@ -46,6 +57,10 @@ if "answered_num" not in st.session_state:
 if "selected_question" not in st.session_state:
     st.session_state.selected_question = ""
 
+# [20240925 강태영] 그룹 상태 관리
+if "group_states" not in st.session_state:
+    st.session_state.group_states = {}
+
 def submit_recommended_question(question):
     st.session_state.selected_question = question
 
@@ -55,6 +70,13 @@ def handle_unanswered_click_event(unquestion):
         st.toast("질문이 등록 되었습니다.", icon="🥳")
     else:
         st.toast("이미 등록된 질문입니다", icon="😊")
+
+#[20240925 강태영] 닫기 버튼 클릭시 event
+def handle_closed_button(group_name):
+    if st.session_state.group_states[group_name]:
+        st.session_state.group_states[group_name] = False
+    else:
+        st.session_state.group_states[group_name] = True
 
 # Function to display the chat history
 def display_chat():
@@ -74,28 +96,52 @@ def display_chat():
                           kwargs={"unquestion": message["un_answer_button"]["data"]})
                 
             if message.get("button_group"):
+                group_name = message.get("group_name")
                 st.markdown("---")
-                st.markdown("**이와 관련된 다른 질문들도 확인해보세요:**")
-                    
-                st.button(label = message["button_group"]["r1"],
-                          key = message["button_group"]["r1_key"],
-                          on_click=submit_recommended_question,
-                          kwargs={"question": message["button_group"]["r1"]})
                 
-                st.button(label = message["button_group"]["r2"],
-                          key = message["button_group"]["r2_key"],
-                          on_click=submit_recommended_question,
-                          kwargs={"question": message["button_group"]["r2"]})
-                
-                st.button(label = message["button_group"]["r3"],
-                          key = message["button_group"]["r3_key"],
-                          on_click=submit_recommended_question,
-                          kwargs={"question": message["button_group"]["r3"]})
-                
-                st.button(label = message["button_group"]["r4"],
-                          key = message["button_group"]["r4_key"],
-                          on_click=submit_recommended_question,
-                          kwargs={"question": message["button_group"]["r4"]})        
+                label_message = ":material/Close: 질문 닫기"
+
+                if st.session_state.group_states[group_name]:
+                    st.button(label=label_message, type="primary",
+                            key=f"cancelbt_{message["button_group"]["r1_key"]}",
+                            on_click = handle_closed_button, 
+                            kwargs={"group_name": group_name})
+
+                    with st.container(border=True):
+                        # st.button(label=":material/Close:", type="primary",
+                        #         key = f"cancelbt_{message["button_group"]["r1_key"]}",
+                        #         on_click = handle_closed_button, 
+                        #         kwargs={"group_name": group_name})
+                            
+                        st.button(label = message["button_group"]["r1"],
+                                key = message["button_group"]["r1_key"],
+                                on_click=submit_recommended_question,
+                                kwargs={"question": message["button_group"]["r1"]})
+                        
+                        st.button(label = message["button_group"]["r2"],
+                                key = message["button_group"]["r2_key"],
+                                on_click=submit_recommended_question,
+                                kwargs={"question": message["button_group"]["r2"]})
+                        
+                        st.button(label = message["button_group"]["r3"],
+                                key = message["button_group"]["r3_key"],
+                                on_click=submit_recommended_question,
+                                kwargs={"question": message["button_group"]["r3"]})
+                        
+                        st.button(label = message["button_group"]["r4"],
+                                key = message["button_group"]["r4_key"],
+                                on_click=submit_recommended_question,
+                                kwargs={"question": message["button_group"]["r4"]})
+                else:
+                    if message.get("un_answer_button"):
+                        label_message = ":material/Arrow_Forward_iOS: 이렇게 질문해보는 건 어떠세요?"
+                    else:
+                        label_message = ":material/Arrow_Forward_iOS: 이와 관련된 다른 질문들도 확인해보세요!"
+
+                    st.button(label=label_message, type="primary",
+                            key=f"cancelbt_{message["button_group"]["r1_key"]}",
+                            on_click = handle_closed_button, 
+                            kwargs={"group_name": group_name})        
 
 # Display the chat history
 display_chat()
@@ -125,6 +171,7 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                                     "data": prompt}
                 
                 #k1~k4 recommend
+                recommend_group_name = f"group_{st.session_state.answered_num}"
                 recommend_group = {"r1": df_context.iloc[0]["ProblemDescription"], "r1_key": st.session_state.answered_num,
                                 "r2": df_context.iloc[1]["ProblemDescription"], "r2_key": st.session_state.answered_num+1,
                                 "r3": df_context.iloc[2]["ProblemDescription"], "r3_key": st.session_state.answered_num+2,
@@ -137,8 +184,11 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                     "role": "assistant",
                     "content": response,
                     "un_answer_button": un_answer_button,
-                    "button_group": recommend_group 
+                    "button_group": recommend_group, 
+                    "group_name": recommend_group_name
                 }) 
+
+                st.session_state.group_states[recommend_group_name] = False
                 
                 with placeholder.container():
                     st.markdown(response)
@@ -148,37 +198,43 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                                 kwargs={"unquestion": un_answer_button["data"]})
                     
                     st.markdown("---")
-                    st.markdown("**이런 질문을 찾고 계신가요? 아래에 추천 질문을 확인해 보세요!**")
+                    st.button(label=":material/Arrow_Forward_iOS: 이렇게 질문해보는 건 어떠세요?", type="primary",
+                                key=f"cancelbt_{recommend_group["r1_key"]}",
+                                on_click = handle_closed_button, 
+                                kwargs={"group_name": recommend_group_name})                    
+                
+                    # with st.container(border=True):
+                    #     # st.button(label=":material/Close:", type="primary",
+                    #     #         key = f"cancelbt_{recommend_group["r1_key"]}",
+                    #     #         on_click = handle_closed_button, 
+                    #     #         kwargs={"group_name": recommend_group_name})
 
-                    recommand_container = st.container(border=True)
-
-                    with recommand_container:
-  
-                        st.button(label = recommend_group["r1"], 
-                                key = recommend_group["r1_key"],
-                                on_click= submit_recommended_question,
-                                kwargs={"question": recommend_group["r1"]})
+                    #     st.button(label = recommend_group["r1"], 
+                    #             key = recommend_group["r1_key"],
+                    #             on_click= submit_recommended_question,
+                    #             kwargs={"question": recommend_group["r1"]})
                         
-                        st.button(label = recommend_group["r2"],
-                                key = recommend_group["r2_key"],
-                                on_click=submit_recommended_question,
-                                kwargs={"question": recommend_group["r2"]})
+                    #     st.button(label = recommend_group["r2"],
+                    #             key = recommend_group["r2_key"],
+                    #             on_click=submit_recommended_question,
+                    #             kwargs={"question": recommend_group["r2"]})
                         
-                        st.button(label = recommend_group["r3"],
-                                key = recommend_group["r3_key"],
-                                on_click=submit_recommended_question,
-                                kwargs={"question": recommend_group["r3"]})
+                    #     st.button(label = recommend_group["r3"],
+                    #             key = recommend_group["r3_key"],
+                    #             on_click=submit_recommended_question,
+                    #             kwargs={"question": recommend_group["r3"]})
                         
-                        st.button(label = recommend_group["r4"],
-                                key = recommend_group["r4_key"],
-                                on_click=submit_recommended_question,
-                                kwargs={"question": recommend_group["r4"]})
-                    
+                    #     st.button(label = recommend_group["r4"],
+                    #             key = recommend_group["r4_key"],
+                    #             on_click=submit_recommended_question,
+                    #             kwargs={"question": recommend_group["r4"]})
+                            
             else: #답변
                 #k1 답변
                 response = hcs.ask_llm(query=prompt, k1_context=df_context_k1)
 
                 #k2~k5 recommend
+                recommend_group_name = f"group_{st.session_state.answered_num}"
                 recommend_group = {"r1": df_context.iloc[1]["ProblemDescription"], "r1_key": st.session_state.answered_num,
                                 "r2": df_context.iloc[2]["ProblemDescription"], "r2_key": st.session_state.answered_num+1,
                                 "r3": df_context.iloc[3]["ProblemDescription"], "r3_key": st.session_state.answered_num+2,
@@ -199,8 +255,11 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                     "role": "assistant",
                     "content": response,
                     "button": button_info,
-                    "button_group": recommend_group 
+                    "button_group": recommend_group,
+                    "group_name": recommend_group_name 
                 })
+
+                st.session_state.group_states[recommend_group_name] = False
 
                 # Display the assistant's response
                 with placeholder.container():
@@ -208,31 +267,37 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                     st.link_button(button_info["label"], button_info["s3_link"])
                         
                     st.markdown("---")
-                    st.markdown("**이와 관련된 다른 질문들도 확인해보세요:**")
+                    st.button(label=":material/Arrow_Forward_iOS: 이와 관련된 다른 질문들도 확인해보세요!", type="primary",
+                                key=f"cancelbt_{recommend_group["r1_key"]}",
+                                on_click = handle_closed_button, 
+                                kwargs={"group_name": recommend_group_name})
+                    
+                    # with st.container(border=True):
+                    #     # st.button(label=":material/Close:", type="primary",
+                    #     #         key = f"cancelbt_{recommend_group["r1_key"]}",
+                    #     #         on_click = handle_closed_button, 
+                    #     #         kwargs={"group_name": recommend_group_name})
+
+                    #     st.button(label = recommend_group["r1"], 
+                    #             key = recommend_group["r1_key"],
+                    #             on_click= submit_recommended_question,
+                    #             kwargs={"question": recommend_group["r1"]})
                         
-                    st.button(label = recommend_group["r1"], 
-                            key = recommend_group["r1_key"],
-                            on_click= submit_recommended_question,
-                            kwargs={"question": recommend_group["r1"]})
-                    
-                    st.button(label = recommend_group["r2"],
-                            key = recommend_group["r2_key"],
-                            on_click=submit_recommended_question,
-                            kwargs={"question": recommend_group["r2"]})
-                    
-                    st.button(label = recommend_group["r3"],
-                            key = recommend_group["r3_key"],
-                            on_click=submit_recommended_question,
-                            kwargs={"question": recommend_group["r3"]})
-                    
-                    st.button(label = recommend_group["r4"],
-                            key = recommend_group["r4_key"],
-                            on_click=submit_recommended_question,
-                            kwargs={"question": recommend_group["r4"]})
+                    #     st.button(label = recommend_group["r2"],
+                    #             key = recommend_group["r2_key"],
+                    #             on_click=submit_recommended_question,
+                    #             kwargs={"question": recommend_group["r2"]})
+                        
+                    #     st.button(label = recommend_group["r3"],
+                    #             key = recommend_group["r3_key"],
+                    #             on_click=submit_recommended_question,
+                    #             kwargs={"question": recommend_group["r3"]})
+                        
+                    #     st.button(label = recommend_group["r4"],
+                    #             key = recommend_group["r4_key"],
+                    #             on_click=submit_recommended_question,
+                    #             kwargs={"question": recommend_group["r4"]})
             
 #[20240912 강태영] 다 하고 나서 초기화 하기
 st.session_state.selected_question = ""
 
-#[20240924 강태영] X 버튼 클릭 감지
-# if st.session_state.get("closed_button_clicked", False):
-#     handle_closed()

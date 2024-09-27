@@ -13,20 +13,20 @@ image = oss.getResources()
 def user_menu():
     st.sidebar.image(image + 'sidebar_image.png', width=265)
     st.sidebar.markdown("----------------------")
-    st.sidebar.page_link("./pages/user_CescoBotHome.py", label=":material/Smart_Toy: 채팅 시작하기")
-    st.sidebar.page_link("./pages/user_ManualList.py", label=":material/Lists: 매뉴얼 열람하기")
+    st.sidebar.page_link("pages/user_CescoBotHome.py", label=":material/Smart_Toy: 채팅 시작하기")
+    st.sidebar.page_link("pages/user_ManualList.py", label=":material/Lists: 매뉴얼 열람하기")
     st.sidebar.markdown("----------------------")
-    st.sidebar.page_link("./pages/admin_Setting.py", label=":material/Settings: 설정")
+    st.sidebar.page_link("pages/admin_Setting.py", label=":material/Settings: 설정")
 
 def admin_menu():
     st.sidebar.image(image + 'sidebar_image.png', width=265)
     st.sidebar.markdown("----------------------")
-    st.sidebar.page_link("./pages/admin_UploadData.py", label=":material/Upload_File: 매뉴얼 업로드 페이지")
-    st.sidebar.page_link("./pages/admin_OriginDataManage.py", label=":material/Folder_Managed: 매뉴얼 원본 데이터 관리")
-    st.sidebar.page_link("./pages/admin_SplitDataManage.py", label=":material/Folder: 매뉴얼 데이터 관리",)
-    st.sidebar.page_link("./pages/admin_UnAnswerd.py", label=":material/Analytics: 무응답 데이터 관리")
+    st.sidebar.page_link("pages/admin_UploadData.py", label=":material/Upload_File: 매뉴얼 업로드 페이지")
+    st.sidebar.page_link("pages/admin_OriginDataManage.py", label=":material/Folder_Managed: 매뉴얼 원본 데이터 관리")
+    st.sidebar.page_link("pages/admin_SplitDataManage.py", label=":material/Folder: 매뉴얼 데이터 관리",)
+    st.sidebar.page_link("pages/admin_UnAnswerd.py", label=":material/Analytics: 무응답 데이터 관리")
     st.sidebar.markdown("----------------------")
-    st.sidebar.page_link("./pages/admin_Setting.py", label=":material/Settings: 설정")
+    st.sidebar.page_link("pages/admin_Setting.py", label=":material/Settings: 설정")
 
     #st.session_state.role = st.session_state._role
 
