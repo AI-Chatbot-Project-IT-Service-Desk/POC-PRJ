@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cesco-ai-helpdesk
-  namespace: ai-cesco
+  namespace: cesco-poc-1
 spec:
   replicas: 1
   selector:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: cesco-ai-helpdesk
-        image: chanran33/cesco-ai-helpdesk:0.0.1
+        image: chanran33/cesco-ai-helpdesk:0.0.5
         imagePullPolicy: Always
         resources:
           limits:
@@ -34,7 +34,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cesco-ai-helpdesk-service
-  namespace: ai-cesco
+  namespace: cesco-poc-1
 spec:
   selector:
     app: cesco-ai-helpdesk
@@ -50,7 +50,7 @@ apiVersion: gateway.kyma-project.io/v1beta1
 kind: APIRule
 metadata:
   name: cesco-ai-helpdesk-api-rule
-  namespace: ai-cesco
+  namespace: cesco-poc-1
 spec:
   gateway: kyma-gateway.kyma-system.svc.cluster.local
   host: cesco-ai-helpdesk-api-rule.api.efeaa16.kyma.ondemand.com

@@ -11,35 +11,35 @@ ENV LANGUAGE en_US.UTF-8
 RUN apt-get update && apt-get install -y expect
 
 # Custom location to place code files
-RUN mkdir -p /app/src
-WORKDIR /app/src
+RUN mkdir -p /app/
+WORKDIR /app/
 
-COPY /config/ /app/src/config/
+COPY /config/ /app/config/
 # app.py
-COPY app.py /app/src/app.py
+COPY app.py /app/app.py
 # menu.py
-COPY menu.py /app/src/menu.py
+COPY menu.py /app/menu.py
 # pages
-COPY /pages/ /app/src/pages/
+COPY pages/ /app/pages/
 # server
-COPY /server/ /app/src/server/
+COPY server/ /app/server/
 # fonts
-COPY /fonts/ /app/src/fonts/
+COPY fonts/ /app/fonts/
 # requirements.txt
-COPY requirements.txt /app/src/requirements.txt
+COPY requirements.txt /app/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade pip
-RUN pip3 install -r /app/src/requirements.txt
+RUN pip3 install -r /app/requirements.txt
 
 EXPOSE 7860
 
 # Run aicore configure command
 # Copy the script into the container
-COPY configure_aicore.exp /app/src/
+COPY configure_aicore.exp /app/
 # Set the script to be executable
-RUN chmod +x /app/src/configure_aicore.exp
+RUN chmod +x /app/configure_aicore.exp
 # Run the script
-RUN /usr/bin/expect /app/src/configure_aicore.exp
+RUN /usr/bin/expect /app/configure_aicore.exp
 
 # Run your application
-CMD ["python", "app.py"]
+CMD ["streamlit", "run","app.py"]

@@ -14,10 +14,26 @@ from server import pdf_split as ps
 # Redirect to app.py if not logged in, otherwise show the navigation menu
 menu_with_redirect()
 
-st.title("매뉴얼 업로드 페이지")
-st.write("매뉴얼 업로드 페이지 입니다.")
+st.markdown(""" 
+    <style>
+    .title {
+        margin-bottom: -40px;  /* 제목과 구분선 사이의 간격을 줄이기 */
+    }
+    .divider {
+        margin-top: 20px;  /* 구분선 위쪽의 간격을 늘리기 */
+        margin-bottom: 70px;  /* 구분선 아래쪽의 간격을 늘리기 */
+    }
+    .metrics {
+        margin-top: 30px;  /* 메트릭과 구분선 사이의 간격을 늘리기 */
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-uploaded_file = st.file_uploader("PDF 파일을 업로드하세요", type="pdf")
+with st.container():
+    st.markdown('<h2 class="title">매뉴얼 업로드 페이지</h2>', unsafe_allow_html=True)
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+
+uploaded_file = st.file_uploader("PDF 파일을 업로드하세요.", type="pdf")
 
 if uploaded_file is not None:
     check_form = ps.check_form(uploaded_file)
