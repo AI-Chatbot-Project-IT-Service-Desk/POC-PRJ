@@ -17,7 +17,7 @@ from menu import menu_with_redirect
 menu_with_redirect()
 
 pecab = pecab.PeCab()
-
+font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fonts', '세스코R_20140905153946.TTF')
 # [20240912 강태영] 삭제를 위해 dataframe을 session_state에 넣는다
 if "unanswered_df" not in st.session_state:
     df = hcs.select_all_unansweredquestions_table()
@@ -34,7 +34,6 @@ texts = st.session_state.unanswered_df['무응답 내용'].tolist()
 # Analyze and visualize texts
 def analyze_texts(texts, pecab, top_n=10):
     #font_path = 'fonts\세스코R_20140905153946.TTF'  # 서버에 맞는 폰트 경로 설정
-    font_path = os.path.join('fonts', '세스코R_20140905153946.TTF')
     font = font_manager.FontProperties(fname=font_path).get_name()
     rc('font', family=font)
 
