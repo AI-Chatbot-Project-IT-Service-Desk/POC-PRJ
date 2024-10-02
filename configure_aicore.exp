@@ -13,7 +13,7 @@ spawn aicore configure -k config/aihub-key-teon.txt
 sleep 5 ;# Waits for 5 seconds. Adjust the number as necessary.
 
 # Press Enter to update Resource Group "Default"
-send -- "oss-llm\r"
+send -- "\r"
 
 # Wait for the process to finish
 expect eof

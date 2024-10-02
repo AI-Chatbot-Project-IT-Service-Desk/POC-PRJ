@@ -27,11 +27,13 @@ COPY server/ /app/server/
 COPY fonts/ /app/fonts/
 # requirements.txt
 COPY requirements.txt /app/requirements.txt
+# .streamlit
+COPY .streamlit /app/.streamlit
 
 RUN pip install --no-cache-dir --upgrade pip
 RUN pip3 install -r /app/requirements.txt
 
-EXPOSE 7860
+EXPOSE 8501
 
 # Run aicore configure command
 # Copy the script into the container
@@ -42,4 +44,4 @@ RUN chmod +x /app/configure_aicore.exp
 RUN /usr/bin/expect /app/configure_aicore.exp
 
 # Run your application
-CMD ["streamlit", "run","app.py"]
+CMD ["streamlit","run","app.py"]

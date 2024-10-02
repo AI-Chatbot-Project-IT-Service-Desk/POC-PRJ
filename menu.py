@@ -17,6 +17,15 @@ def user_menu():
     st.sidebar.page_link("pages/user_ManualList.py", label=":material/Lists: 매뉴얼 열람하기")
     st.sidebar.markdown("----------------------")
     st.sidebar.page_link("pages/admin_Setting.py", label=":material/Settings: 설정")
+    # 이미지 full screen 기능 버튼 숨기기
+    hide_fullscreen_button = """
+    <style>
+    button[title="View fullscreen"] {
+    display: none;
+    }
+    </style>
+    """
+    st.markdown(hide_fullscreen_button, unsafe_allow_html=True)
 
 def admin_menu():
     st.sidebar.image(image + 'sidebar_image.png', width=265)
@@ -27,6 +36,15 @@ def admin_menu():
     st.sidebar.page_link("pages/admin_UnAnswerd.py", label=":material/Analytics: 무응답 데이터 관리")
     st.sidebar.markdown("----------------------")
     st.sidebar.page_link("pages/admin_Setting.py", label=":material/Settings: 설정")
+    # 이미지 full screen 기능 버튼 숨기기
+    hide_fullscreen_button = """
+    <style>
+    button[title="View fullscreen"] {
+    display: none;
+    }
+    </style>
+    """
+    st.markdown(hide_fullscreen_button, unsafe_allow_html=True)
 
     #st.session_state.role = st.session_state._role
 
