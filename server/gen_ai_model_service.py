@@ -8,7 +8,7 @@ with open("./config/cesco-poc-aicore-service-key1.json") as f:
     config = json.load(f)
 
 #임베딩 모델
-deployment_id = "d9db22d079747a76"
+deployment_id = "d51d43597503dac3"
 resource_group = "oss-llm"
 
 ai_core_sk = config
@@ -44,8 +44,7 @@ print(inference_base_url)
 #뉴 코드
 def get_embedding(input) -> str: 
     
-    endpoint = f"{inference_base_url}/embeddings?api-version=2023-05-15"
-    print(endpoint)
+    endpoint = f"{inference_base_url}/v2/embeddings"
     json_data = {
       "input": [
         input
