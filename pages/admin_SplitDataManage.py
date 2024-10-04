@@ -137,7 +137,6 @@ with st.container():
             # 페이지 정보 표시
             with top_menu[0]:
                 st.markdown(f"Page **{current_page}** of **{total_pages}** ")
-                select_all_checkbox = st.checkbox("전체 선택", key="select_all")
 
             # st.data_editor를 사용하여 데이터 표시
             edited_df = st.data_editor(

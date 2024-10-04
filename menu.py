@@ -32,7 +32,7 @@ def admin_menu():
     st.sidebar.markdown("----------------------")
     st.sidebar.page_link("pages/admin_UploadData.py", label=":material/Upload_File: 매뉴얼 업로드 페이지")
     st.sidebar.page_link("pages/admin_OriginDataManage.py", label=":material/Folder_Managed: 매뉴얼 원본 데이터 관리")
-    st.sidebar.page_link("pages/admin_SplitDataManage.py", label=":material/Folder: 매뉴얼 데이터 관리",)
+    st.sidebar.page_link("pages/admin_SplitDataManage_filter.py", label=":material/Folder: 매뉴얼 데이터 관리",)
     st.sidebar.page_link("pages/admin_UnAnswerd.py", label=":material/Analytics: 무응답 데이터 관리")
     st.sidebar.markdown("----------------------")
     st.sidebar.page_link("pages/admin_Setting.py", label=":material/Settings: 설정")
