@@ -34,7 +34,7 @@ print("[START] HANA CLOUD DB Connect Success")
 def is_aready_exist_pdf_file(upload_file_name):
     sql = '''SELECT COUNT(*)
              FROM (	SELECT "ProblemCategory"
-                    FROM gen_ai.CESCO_PROBLEMSOLUTIONS33
+                    FROM gen_ai.CESCO_PROBLEMSOLUTIONS22
                     GROUP BY "ProblemCategory")
              WHERE "ProblemCategory" = '{upload_file_name}' '''.format(upload_file_name = upload_file_name)
 
@@ -55,7 +55,7 @@ def update_FileNamesDB(file_category):
 
     #파일 명이 기존에 이미 저장되어 있는지 없는지 판단
     sql1 = '''SELECT "Code" 
-              FROM "CESCO_FILENAMES33" 
+              FROM "CESCO_FILENAMES22" 
               WHERE "FileName" = '{file_category}' '''.format(file_category = file_category)
         
     hdf = cc.sql(sql1)
@@ -63,7 +63,7 @@ def update_FileNamesDB(file_category):
         
     if df_result.empty:
         #삽입 로직
-        sql2 = '''INSERT INTO "CESCO_FILENAMES33" ("CodeID", "Code", "FileName", "CreateDate")
+        sql2 = '''INSERT INTO "CESCO_FILENAMES22" ("CodeID", "Code", "FileName", "CreateDate")
                 VALUES (GEN_AI.FILE_NO.NEXTVAL, 'cesco' || TO_CHAR(GEN_AI.FILE_NO.NEXTVAL), '{file_category}', CURRENT_DATE)'''.format(file_category = file_category)
         try:
             cursor.execute(sql2)
@@ -92,7 +92,7 @@ def upload_dataframe_to_hanacloud(extract_dataframe, filecode):
     print("[LOG] Successfully connected to Hana Cloud")
 
     for index, row in extract_dataframe.iterrows():
-        sql = '''INSERT INTO "CESCO_PROBLEMSOLUTIONS33" (
+        sql = '''INSERT INTO "CESCO_PROBLEMSOLUTIONS22" (
         "ProblemID", "ProblemDescription", "ProblemCategory", 
         "ProblemKeyword", "Solution", "SolutionDoc", "AdditionalInfo", "Code",
         "VectorProblem", "CreateDate", "UpdateDate")
@@ -121,9 +121,9 @@ def upload_dataframe_to_hanacloud(extract_dataframe, filecode):
 
     print("[LOG] Successfully uploaded to HANA Cloud.")
 
-#[20240828 강태영] CESCO_FILENAMES33(원본 테이블) 조회
+#[20240828 강태영] CESCO_FILENAMES22(원본 테이블) 조회
 def select_all_filenames_table():
-    sql1 = '''SELECT "CodeID", "FileName", "CreateDate", CONCAT("Code", '.pdf') FROM gen_ai.CESCO_FILENAMES33'''
+    sql1 = '''SELECT "CodeID", "FileName", "CreateDate", CONCAT("Code", '.pdf') FROM gen_ai.CESCO_FILENAMES22'''
 
     hdf = cc.sql(sql1)
     df_result = hdf.collect()    
@@ -140,7 +140,7 @@ def select_all_unansweredquestions_table():
 
 #[20240830 강태영] QNA 테이블 조회
 def select_all_problemsolutions_table():
-    sql1 = '''SELECT "ProblemCategory", "ProblemDescription", "CreateDate", "SolutionDoc" FROM gen_ai.CESCO_PROBLEMSOLUTIONS33;'''
+    sql1 = '''SELECT "ProblemCategory", "ProblemDescription", "CreateDate", "SolutionDoc" FROM gen_ai.CESCO_PROBLEMSOLUTIONS22;'''
         
     hdf = cc.sql(sql1)
     df_result = hdf.collect()    
@@ -171,7 +171,7 @@ def run_vector_search(query: str, metric="COSINE_SIMILARITY", k=5):
     "Solution","SolutionDoc", "AdditionalInfo",
     "Code", "{metric}"("VectorProblem", TO_REAL_VECTOR('{qv}'))
     AS "{col}", "CreateDate", "UpdateDate"
-    FROM "CESCO_PROBLEMSOLUTIONS33"
+    FROM "CESCO_PROBLEMSOLUTIONS22"
     ORDER BY "{col}" {sort}
     '''.format(k=k, metric = metric, qv = query_vector, sort=sort, col=col)
 
@@ -272,7 +272,7 @@ def upload_unanswered_data(unquestion: str):
 def get_menual_data():
 
     sql = '''SELECT "ProblemCategory", "ProblemKeyword", "ProblemDescription", "SolutionDoc", "CreateDate"
-             FROM gen_ai.CESCO_PROBLEMSOLUTIONS33 '''
+             FROM gen_ai.CESCO_PROBLEMSOLUTIONS22 '''
     
     hdf = cc.sql(sql)
     df_result = hdf.collect()
@@ -284,7 +284,7 @@ def select_code_list(deleted_rows):
 
     delete_list = ", ".join(map(str, deleted_rows))
 
-    sql = '''select "Code" from gen_ai.CESCO_FILENAMES33
+    sql = '''select "Code" from gen_ai.CESCO_FILENAMES22
                 where "CodeID" in ({delete_list})'''.format(delete_list = delete_list)
     
     hdf = cc.sql(sql)
@@ -299,7 +299,7 @@ def remove_selected_files(deleted_rows):
 
     delete_list = ", ".join(map(str, deleted_rows))
 
-    sql = '''delete from gen_ai.CESCO_FILENAMES33
+    sql = '''delete from gen_ai.CESCO_FILENAMES22
                 where "CodeID" in ({delete_list})'''.format(delete_list = delete_list)
 
     try:
@@ -320,7 +320,7 @@ def remove_selected_files(deleted_rows):
 def select_child_pdf_list(code_list): 
     code_map_list = ", ".join(f"'{item}'" for item in code_list)
 
-    sql = '''select "SolutionDoc" from gen_ai.CESCO_PROBLEMSOLUTIONS33
+    sql = '''select "SolutionDoc" from gen_ai.CESCO_PROBLEMSOLUTIONS22
             where "Code" in ({code_map_list})'''.format(code_map_list = code_map_list)
     hdf = cc.sql(sql)
 
@@ -334,7 +334,7 @@ def select_child_pdf_list(code_list):
 def remove_child_files(code_list):
     code_map_list = ", ".join(f"'{item}'" for item in code_list)
 
-    sql = '''delete from gen_ai.CESCO_PROBLEMSOLUTIONS33
+    sql = '''delete from gen_ai.CESCO_PROBLEMSOLUTIONS22
             where "Code" in ({code_map_list});'''.format(code_map_list = code_map_list)
     
     try:

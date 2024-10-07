@@ -64,7 +64,7 @@ def check_form(uploaded_file):
     page = doc.load_page(0)
     content = extract_content_from_page(page)
     for data in reversed(content):
-        if data['text'] == "334632306323587" or int(data['font_size']) == 9 :
+        if data['text'] == "224632306323587" or int(data['font_size']) == 9 :
             return True
     
     return False
