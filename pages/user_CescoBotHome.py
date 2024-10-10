@@ -108,10 +108,6 @@ def display_chat():
                             kwargs={"group_name": group_name})
 
                     with st.container(border=True):
-                        # st.button(label=":material/Close:", type="primary",
-                        #         key = f"cancelbt_{message["button_group"]["r1_key"]}",
-                        #         on_click = handle_closed_button, 
-                        #         kwargs={"group_name": group_name})
                             
                         st.button(label = message["button_group"]["r1"],
                                 key = message["button_group"]["r1_key"],
@@ -202,32 +198,6 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                                 key=f"cancelbt_{recommend_group["r1_key"]}",
                                 on_click = handle_closed_button, 
                                 kwargs={"group_name": recommend_group_name})                    
-                
-                    # with st.container(border=True):
-                    #     # st.button(label=":material/Close:", type="primary",
-                    #     #         key = f"cancelbt_{recommend_group["r1_key"]}",
-                    #     #         on_click = handle_closed_button, 
-                    #     #         kwargs={"group_name": recommend_group_name})
-
-                    #     st.button(label = recommend_group["r1"], 
-                    #             key = recommend_group["r1_key"],
-                    #             on_click= submit_recommended_question,
-                    #             kwargs={"question": recommend_group["r1"]})
-                        
-                    #     st.button(label = recommend_group["r2"],
-                    #             key = recommend_group["r2_key"],
-                    #             on_click=submit_recommended_question,
-                    #             kwargs={"question": recommend_group["r2"]})
-                        
-                    #     st.button(label = recommend_group["r3"],
-                    #             key = recommend_group["r3_key"],
-                    #             on_click=submit_recommended_question,
-                    #             kwargs={"question": recommend_group["r3"]})
-                        
-                    #     st.button(label = recommend_group["r4"],
-                    #             key = recommend_group["r4_key"],
-                    #             on_click=submit_recommended_question,
-                    #             kwargs={"question": recommend_group["r4"]})
                             
             else: #답변
                 #k1 답변
@@ -271,32 +241,6 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                                 key=f"cancelbt_{recommend_group["r1_key"]}",
                                 on_click = handle_closed_button, 
                                 kwargs={"group_name": recommend_group_name})
-                    
-                    # with st.container(border=True):
-                    #     # st.button(label=":material/Close:", type="primary",
-                    #     #         key = f"cancelbt_{recommend_group["r1_key"]}",
-                    #     #         on_click = handle_closed_button, 
-                    #     #         kwargs={"group_name": recommend_group_name})
-
-                    #     st.button(label = recommend_group["r1"], 
-                    #             key = recommend_group["r1_key"],
-                    #             on_click= submit_recommended_question,
-                    #             kwargs={"question": recommend_group["r1"]})
-                        
-                    #     st.button(label = recommend_group["r2"],
-                    #             key = recommend_group["r2_key"],
-                    #             on_click=submit_recommended_question,
-                    #             kwargs={"question": recommend_group["r2"]})
-                        
-                    #     st.button(label = recommend_group["r3"],
-                    #             key = recommend_group["r3_key"],
-                    #             on_click=submit_recommended_question,
-                    #             kwargs={"question": recommend_group["r3"]})
-                        
-                    #     st.button(label = recommend_group["r4"],
-                    #             key = recommend_group["r4_key"],
-                    #             on_click=submit_recommended_question,
-                    #             kwargs={"question": recommend_group["r4"]})
             
 #[20240912 강태영] 다 하고 나서 초기화 하기
 st.session_state.selected_question = ""

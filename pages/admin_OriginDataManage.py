@@ -121,7 +121,7 @@ else:
         # 페이지 정보 표시
         with top_menu[0]:
             st.markdown(f"Page **{current_page}** of **{total_pages}** ")
-            select_all_checkbox = st.checkbox("전체 선택", key="select_all")
+            #select_all_checkbox = st.checkbox("전체 선택", key="select_all")
 
         if not display_df.empty:
             edited_df = st.dataframe(

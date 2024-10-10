@@ -41,9 +41,11 @@ if uploaded_file is not None:
     if(not check_form):
         st.warning("지정된 폼으로 작성된 파일이 아닙니다.", icon="⚠️")
     else:
-        upload_file_name = (uploaded_file.name).split(".pdf")[0] #업로드한 파일 이름 (확장자 제거)
+        #upload_file_name = (uploaded_file.name).split(".pdf")[0] #업로드한 파일 이름 (확장자 제거)
 
-        if hcs.is_aready_exist_pdf_file(upload_file_name):
+        upload_category_name = ps.extract_file_category(uploaded_file)
+
+        if hcs.is_aready_exist_pdf_file(upload_category_name):
             st.toast("동일한 파일이 이미 업로드되어 있습니다. 파일을 변경하려면 [원본 데이터 관리]에서 기존 파일을 삭제한 후 다시 업로드해주세요.",
                     icon="⚠️")
             st.warning("동일한 파일이 이미 업로드되어 있습니다. 파일을 변경하려면 [원본 데이터 관리]에서 기존 파일을 삭제한 후 다시 업로드해주세요.",

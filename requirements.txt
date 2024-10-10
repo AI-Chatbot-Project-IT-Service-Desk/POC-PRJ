@@ -1,10 +1,13 @@
-generative-ai-hub-sdk==1.2.2
+generative-ai-hub-sdk[all]
 tiktoken
 pandas
 scipy
 hana-ml
 hdbcli
 langchain
+langchain-aws==0.1.7
+langchain_google_vertexai==1.0.8
+langchain-openai==0.1.25
 ai-core-sdk
 shapely
 eval_type_backport

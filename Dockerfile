@@ -25,10 +25,10 @@ COPY pages/ /app/pages/
 COPY server/ /app/server/
 # fonts
 COPY fonts/ /app/fonts/
-# requirements.txt
-COPY requirements.txt /app/requirements.txt
 # .streamlit
 COPY .streamlit /app/.streamlit
+# requirements.txt
+COPY requirements.txt /app/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade pip
 RUN pip3 install -r /app/requirements.txt
@@ -42,6 +42,8 @@ COPY configure_aicore.exp /app/
 RUN chmod +x /app/configure_aicore.exp
 # Run the script
 RUN /usr/bin/expect /app/configure_aicore.exp
+# fonts 설정 
+RUN chmod -R 755 /app/fonts/
 
 # Run your application
 CMD ["streamlit","run","app.py"]
