@@ -134,7 +134,7 @@ with st.container():
             period_filter = st.date_input(
                 "생성날짜", 
                 key="period_filter_1", 
-                value=None,
+                value=(start_date, end_date),
                 on_change = update_filters_date
             )
 

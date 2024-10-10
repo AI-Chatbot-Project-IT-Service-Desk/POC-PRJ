@@ -10,8 +10,9 @@ from hana_ml import ConnectionContext
 from hana_ml.dataframe import create_dataframe_from_pandas
 from gen_ai_hub.proxy.native.openai import embeddings
 from langchain_core.prompts import PromptTemplate
-from gen_ai_hub.proxy.langchain.openai import ChatOpenAI
+from gen_ai_hub.proxy.langchain.google_vertexai import GenerativeModel
 from gen_ai_hub.proxy.core.proxy_clients import get_proxy_client
+#from gen_ai_hub.proxy.langchain.openai import ChatOpenAI
 
 from server import gen_ai_model_service as gams
 
@@ -32,12 +33,12 @@ cursor.execute("""SET SCHEMA GEN_AI""")
 
 print("[START] HANA CLOUD DB Connect Success")
 
-def is_aready_exist_pdf_file(upload_file_name):
+def is_aready_exist_pdf_file(upload_category_name):
     sql = '''SELECT COUNT(*)
              FROM (	SELECT "ProblemCategory"
                     FROM gen_ai.cesco_problemsolutions
                     GROUP BY "ProblemCategory")
-             WHERE "ProblemCategory" = '{upload_file_name}' '''.format(upload_file_name = upload_file_name)
+             WHERE "ProblemCategory" = '{upload_category_name}' '''.format(upload_category_name = upload_category_name)
 
     hdf = cc.sql(sql)
     df_result = hdf.collect()
@@ -198,16 +199,44 @@ Answer:
 
 promptTemplate = PromptTemplate.from_template(promptTemplate_fstring)
 
+# ChatOpenAI
+# def ask_llm(query: str, k1_context: pd.Series) -> str:
+#     context = f"""category: {k1_context["ProblemCategory"]}, keyword: {k1_context["ProblemKeyword"]}, content: {k1_context["ProblemDescription"]}, {k1_context["Solution"]}, etc: {k1_context["AdditionalInfo"]}"""
+#     prompt = promptTemplate.format(query=query, context=context)
+#     print('\nAsking LLM...')
+#     llm = ChatOpenAI(deployment_id="d03974e89ef130ad", temperature=0)
+#     #llm = ChatOpenAI(deployment_id="d36b7697328746e0", temperature=0)
+
+#     response = llm.invoke(prompt)
+#     print("[LOG] 답변 생성 완료")
+#     return response.content
+
+#Gemini
 def ask_llm(query: str, k1_context: pd.Series) -> str:
     context = f"""category: {k1_context["ProblemCategory"]}, keyword: {k1_context["ProblemKeyword"]}, content: {k1_context["ProblemDescription"]}, {k1_context["Solution"]}, etc: {k1_context["AdditionalInfo"]}"""
     prompt = promptTemplate.format(query=query, context=context)
+    
     print('\nAsking LLM...')
-    llm = ChatOpenAI(deployment_id="d03974e89ef130ad", temperature=0)
-    #llm = ChatOpenAI(deployment_id="d36b7697328746e0", temperature=0)
+    
+    MODEL_NAME = "gemini-1.5-flash"
+    GEN_AI_HUB_PROXY_CLIENT = "gen-ai-hub"
+    
+    model = GenerativeModel(proxy_client=get_proxy_client(GEN_AI_HUB_PROXY_CLIENT), model_name=MODEL_NAME)
+    
+    content = [{
+        "role": "user",
+        "parts": [{
+            "text": prompt
+        }]
+    }]
+    
+    response = model.generate_content(content)
+    
+    generated_text = response.candidates[0].content.parts[0].text
 
-    response = llm.invoke(prompt)
     print("[LOG] 답변 생성 완료")
-    return response.content
+
+    return generated_text
 
 #[20240904 강태영] 무응답 답변 등록 
 def upload_unanswered_data(unquestion: str):
@@ -223,7 +252,7 @@ def upload_unanswered_data(unquestion: str):
 
     if int(is_exist) == 0: 
         sql_command = '''INSERT INTO "CESCO_UNANSWEREDQUESTIONS" (
-        "QuestionID", "QuestionText", "Status", "StatusUpdateDate", "DownloadDate", "CreateDate")
+        "QuestionIDxt", "QuestionText", "Status", "StatusUpdateDate", "DownloadDate", "CreateDate")
         VALUES (GEN_AI.UNANSWER_NO.NEXTVAL, '{text}', '미처리', CURRENT_DATE, CURRENT_DATE, CURRENT_DATE)'''.format(text=unquestion)
 
         try:

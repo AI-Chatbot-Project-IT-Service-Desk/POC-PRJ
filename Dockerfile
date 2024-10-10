@@ -14,11 +14,6 @@ RUN apt-get update && apt-get install -y expect
 RUN mkdir -p /app/
 WORKDIR /app/
 
-# requirements.txt
-COPY requirements.txt /app/requirements.txt
-RUN pip install --upgrade pip
-RUN pip3 install -r /app/requirements.txt
-
 COPY /config/ /app/config/
 # app.py
 COPY app.py /app/app.py
@@ -32,6 +27,11 @@ COPY server/ /app/server/
 COPY fonts/ /app/fonts/
 # .streamlit
 COPY .streamlit /app/.streamlit
+# requirements.txt
+COPY requirements.txt /app/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip3 install -r /app/requirements.txt
 
 EXPOSE 8501
 
