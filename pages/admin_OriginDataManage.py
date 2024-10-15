@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import sys
 import io
+import datetime
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'server'))
 
@@ -24,9 +25,48 @@ st.markdown("""
     .metrics {
         margin-top: 30px;
     }
+    .stColumn {
+        display: flex;
+        flex-direction: column-reverse;
+    }        
     </style>
     """, unsafe_allow_html=True)
 
+def update_filters_file():
+    if st.session_state["selected_category_origin"] != "전체":
+        filter_problem = st.session_state["original_pdf_df"].loc[st.session_state["original_pdf_df"]["파일명"] == st.session_state["selected_category_origin"]]
+        st.session_state["filter_dataframe_origin"] = filter_problem
+        st.session_state["period_filter_start_origin"] = filter_problem["생성날짜"].iloc[0]
+        st.session_state["period_filter_end_origin"] = filter_problem["생성날짜"].iloc[0]
+    else:
+        st.session_state["filter_dataframe_origin"] = st.session_state["original_pdf_df"]
+        st.session_state["period_filter_start_origin"] = None
+        st.session_state["period_filter_end_origin"] = None
+
+def update_filters_date():
+    if st.session_state["selected_category_origin"] == "전체":
+        if st.session_state["period_filter_start_origin"] is not None and st.session_state["period_filter_end_origin"] is not None: 
+            if st.session_state["period_filter_start_origin"] > st.session_state["period_filter_end_origin"]:
+                st.session_state["period_filter_start_origin"] = st.session_state["past_start_date_origin"]
+                st.session_state["period_filter_end_origin"] = st.session_state["past_end_date_origin"]
+                st.toast("생성날짜의 시작은 생성날짜의 끝 날짜보다 클 수 없습니다.", icon="⚠️")
+            else:
+                st.session_state["filter_dataframe_origin"] = st.session_state["original_pdf_df"][(st.session_state["original_pdf_df"]["생성날짜"].dt.date >= st.session_state["period_filter_start_origin"]) &
+                                                         (st.session_state["original_pdf_df"]["생성날짜"].dt.date <= st.session_state["period_filter_end_origin"])]
+                
+            st.session_state["past_start_date_origin"] = st.session_state["period_filter_start_origin"]
+            st.session_state["past_end_date_origin"] = st.session_state["period_filter_end_origin"] 
+    
+        if st.session_state["period_filter_start_origin"] is None:
+            st.session_state["period_filter_end_origin"] = None
+            st.session_state["filter_dataframe_origin"] = st.session_state["original_pdf_df"]
+# reset함수
+def reset_filters():
+    st.session_state["selected_category_origin"] = "전체"
+    st.session_state["period_filter_start_origin"] = None
+    st.session_state["period_filter_end_origin"] = None
+    st.session_state["filter_dataframe_origin"] = st.session_state["original_pdf_df"]
+    
 with st.container():
     st.markdown('<h2 class="title">매뉴얼 원본 데이터 관리 페이지</h2>', unsafe_allow_html=True)
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
@@ -40,6 +80,18 @@ if "original_pdf_df" not in st.session_state:
 
     st.session_state.original_pdf_df = df
 
+if "filter_dataframe_origin" not in st.session_state:
+    st.session_state["filter_dataframe_origin"] = st.session_state["original_pdf_df"]
+
+if 'category_list_origin' not in st.session_state:
+    st.session_state["category_list_origin"] = list(st.session_state["original_pdf_df"]["파일명"].unique())
+
+if 'past_start_date_origin' not in st.session_state:
+    st.session_state["past_start_date_origin"] = None
+
+if 'past_end_date_origin' not in st.session_state:
+    st.session_state["past_end_date_origin"] = None
+
 # 데이터 페이지 나누기 함수
 def split_frame(input_df, rows):
     return [input_df.iloc[i:i + rows] for i in range(0, len(input_df), rows)]
@@ -47,6 +99,7 @@ def split_frame(input_df, rows):
 def removeData(selected_rows):
     drop_indexes = selected_rows.index.tolist()
     st.session_state.original_pdf_df = st.session_state.original_pdf_df.drop(drop_indexes)
+    st.session_state.filter_dataframe_origin = st.session_state.original_pdf_df 
 
     code_list = hcs.select_code_list(drop_indexes) 
     oss.delete_file_from_s3([code + '.pdf' for code in code_list])
@@ -65,37 +118,40 @@ original_pdf_df = st.session_state.original_pdf_df
 if original_pdf_df.empty: 
     st.info("저장된 매뉴얼이 없습니다. 매뉴얼을 업로드 해주세요", icon="ℹ️")
 else: 
-    col1, col2 = st.columns(2)
+    # 사용자 입력 필터
+    col1, col2, col3, col4 = st.columns([4,2,2,1])
 
     with col1:
-        period_filter = st.date_input("생성날짜", key="period_filter_1", value=None)  
+        category_filter = st.selectbox("파일명", 
+                                       options=["전체"] + st.session_state["category_list_origin"], 
+                                       index=0,
+                                       key="selected_category_origin",
+                                       on_change=update_filters_file)  # 고유한 키 사용
+
     with col2:
-        category_filter = st.selectbox("파일명", options=["전체"] + list(original_pdf_df['파일명'].unique()), key="category_filter_1")  
+        period_filter = st.date_input(
+            "생성날짜(시작)", 
+            key="period_filter_start_origin", 
+            value=None,
+            on_change = update_filters_date
+            )  # 고유한 키 사용
 
-    has_filters = any([period_filter is not None, category_filter != "전체"])
-    invalid_input = False
+    with col3:
+        period_filter2 = st.date_input(
+            "생성날짜(끝)", 
+            key="period_filter_end_origin", 
+            value=None,
+            on_change = update_filters_date
+        )
+    
+    with col4:
+        reset_button = st.button(
+            label=":material/refresh:",
+            on_click = reset_filters
+        )    
 
-    if period_filter:
-        valid_dates = original_pdf_df['생성날짜'].dt.date.tolist()
-        if period_filter not in valid_dates:
-            invalid_input = True
 
-    if category_filter != "전체":
-        valid_categories = original_pdf_df['파일명'].unique().tolist()
-        if category_filter not in valid_categories:
-            invalid_input = True
-
-    filtered_df = original_pdf_df.copy()
-
-    # Apply the filters if any filter is selected
-    if has_filters:
-        # Filter by period
-        if period_filter is not None:
-            filtered_df = filtered_df[filtered_df['생성날짜'].dt.date == period_filter]
-
-        # Filter by category
-        if category_filter != "전체":
-            filtered_df = filtered_df[filtered_df['파일명'] == category_filter]
+    filtered_df = st.session_state["filter_dataframe_origin"]
 
     # Check if filtered DataFrame is empty
     if filtered_df.empty:

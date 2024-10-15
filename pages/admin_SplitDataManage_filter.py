@@ -25,10 +25,16 @@ st.markdown("""
     .metrics {
         margin-top: 30px;  /* 메트릭과 구분선 사이의 간격을 늘리기 */
     }
+    .stColumn {
+        display: flex;
+        flex-direction: column-reverse;
+    }
     </style>
     """, unsafe_allow_html=True)
 
 def update_filters_file():
+    st.session_state["period_filter_start"] = None
+    st.session_state["period_filter_end"] = None
     if st.session_state["selected_category"] != "전체":
         filter_problem = st.session_state["origin_dataframe"].loc[st.session_state["origin_dataframe"]["파일명"] == st.session_state["selected_category"]]
         st.session_state["problem_list"] = list(filter_problem["문제명"])
@@ -38,38 +44,57 @@ def update_filters_file():
         st.session_state["problem_list"] = list(st.session_state["origin_dataframe"]["문제명"])
         st.session_state["selected_problem"] = "전체"
         st.session_state["filter_dataframe"] = st.session_state["origin_dataframe"]
-        st.session_state["period_filter_1"] = None
+        st.session_state["period_filter_start"] = None
+        st.session_state["period_filter_end"] = None
 
 def update_filters_problem():
     if st.session_state["selected_problem"] != "전체":   
         filter_file = st.session_state["origin_dataframe"].loc[st.session_state["origin_dataframe"]["문제명"] == st.session_state["selected_problem"]]
-        print("메타", filter_file)
         st.session_state["selected_category"] = filter_file["파일명"].iloc[0]
-        st.session_state["period_filter_1"] = filter_file["생성날짜"].iloc[0]
+        st.session_state["period_filter_start"] = filter_file["생성날짜"].iloc[0]
+        st.session_state["period_filter_end"] = filter_file["생성날짜"].iloc[0]
         st.session_state["filter_dataframe"] = filter_file
     else:
         update_filters_file()
-        st.session_state["period_filter_1"] = None
+        st.session_state["period_filter_start"] = None
+        st.session_state["period_filter_end"] = None
 
-def update_filters_date():
-    print("생성날짜", st.session_state["period_filter_1"])
-    # print("파일명", st.session_state["selected_category"])
-    # print("문제명", st.session_state["selected_problem"])
+#[20241014 강태영] 생성날짜(시작) 생성날짜(끝) 생성
+def update_filters_date(x):
+    print(st.session_state["period_filter_start"], type(st.session_state["period_filter_start"]))
+    print(st.session_state["period_filter_end"], type(st.session_state["period_filter_end"]))
 
-    #날짜 필터 초기화
-    if st.session_state["period_filter_1"] is None:
-        if st.session_state["selected_category"] != "전체" and st.session_state["selected_problem"] == "전체": 
-            filter_problem = st.session_state["origin_dataframe"].loc[st.session_state["origin_dataframe"]["파일명"] == st.session_state["selected_category"]]
-            st.session_state["filter_dataframe"] = filter_problem
-        if st.session_state["selected_category"] == "전체":
-            st.session_state["filter_dataframe"] = st.session_state["origin_dataframe"]
-    #날짜 필터링
-    else:
-        if st.session_state["selected_category"] != "전체": 
-            filter_problem = st.session_state["origin_dataframe"].loc[st.session_state["origin_dataframe"]["파일명"] == st.session_state["selected_category"]]
-            st.session_state["filter_dataframe"] = filter_problem[filter_problem['생성날짜'].dt.date == st.session_state["period_filter_1"]]
-        else:
-            st.session_state["filter_dataframe"] = st.session_state["origin_dataframe"][st.session_state["origin_dataframe"]['생성날짜'].dt.date == st.session_state["period_filter_1"]]
+    if st.session_state["selected_problem"] == "전체":
+        if st.session_state["period_filter_start"] is not None and st.session_state["period_filter_end"] is not None: 
+            if st.session_state["period_filter_start"] > st.session_state["period_filter_end"]: 
+                st.session_state["period_filter_start"] = st.session_state["past_start_date"]
+                st.session_state["period_filter_end"] = st.session_state["past_end_date"]
+                st.toast("생성날짜의 시작은 생성날짜의 끝 날짜보다 클 수 없습니다.", icon="⚠️")
+            else:
+                if st.session_state["selected_category"] == "전체":
+                    st.session_state["filter_dataframe"] = st.session_state["origin_dataframe"][(st.session_state["origin_dataframe"]["생성날짜"].dt.date >= st.session_state["period_filter_start"]) &
+                                                        (st.session_state["origin_dataframe"]["생성날짜"].dt.date <= st.session_state["period_filter_end"])]
+                else:
+                    st.session_state["filter_dataframe"] = st.session_state["filter_dataframe"][(st.session_state["filter_dataframe"]["생성날짜"].dt.date >= st.session_state["period_filter_start"]) &
+                                                        (st.session_state["filter_dataframe"]["생성날짜"].dt.date <= st.session_state["period_filter_end"])]
+                
+                st.session_state["past_start_date"] = st.session_state["period_filter_start"]
+                st.session_state["past_end_date"] = st.session_state["period_filter_end"]
+    
+    if st.session_state["period_filter_start"] is None:
+        if st.session_state["selected_problem"] == "전체":
+            st.session_state["period_filter_end"] = None
+            if st.session_state["selected_category"] == "전체":
+                st.session_state["filter_dataframe"] = st.session_state["origin_dataframe"]
+            else:
+                st.session_state["filter_dataframe"] = st.session_state["origin_dataframe"].loc[st.session_state["origin_dataframe"]["파일명"] == st.session_state["selected_category"]]
+
+def reset_filters():
+    st.session_state["selected_problem"] = "전체"
+    st.session_state["selected_category"] = "전체"
+    st.session_state["period_filter_start"] = None
+    st.session_state["period_filter_end"] = None
+    st.session_state["filter_dataframe"] = st.session_state["origin_dataframe"]
 
 # 데이터 페이지 나누기 함수
 def split_frame(input_df, rows):
@@ -98,7 +123,15 @@ if 'category_list' not in st.session_state:
     st.session_state["category_list"] = list(st.session_state["origin_dataframe"]["파일명"].unique())
 
 if 'problem_list' not in st.session_state:
-    st.session_state["problem_list"] = list(st.session_state["origin_dataframe"]["문제명"])
+    #print(st.session_state["origin_dataframe"])
+    print(st.session_state["origin_dataframe"]["문제명"])
+    st.session_state["problem_list"] = list(st.session_state["origin_dataframe"]["문제명"].unique())
+
+if 'past_start_date' not in st.session_state:
+    st.session_state["past_start_date"] = None
+
+if 'past_end_date' not in st.session_state:
+    st.session_state["past_end_date"] = None
 
 # UI 구성
 with st.container():
@@ -108,7 +141,7 @@ with st.container():
     if split_pdf_df.empty: 
         st.info("저장된 매뉴얼이 없습니다. 매뉴얼을 업로드 해주세요", icon="ℹ️")
     else:
-        col1, col2, col3 = st.columns([2, 3, 2])
+        col1, col2, col3, col4, col5 = st.columns([2, 3, 2, 2, 1])
 
         with col1:
             selected_category = st.selectbox(
@@ -129,13 +162,25 @@ with st.container():
             )
         
         with col3:
-            start_date = datetime.date(2024, 9, 1)
-            end_date = datetime.datetime.now()
             period_filter = st.date_input(
-                "생성날짜", 
-                key="period_filter_1", 
-                value=(start_date, end_date),
-                on_change = update_filters_date
+                "생성날짜(시작)", 
+                key="period_filter_start", 
+                value=None,
+                on_change = update_filters_date,
+            )
+        
+        with col4:
+            period_filter2 = st.date_input(
+                "생성날짜(끝)", 
+                key="period_filter_end", 
+                value=None,
+                on_change = update_filters_date,
+            )
+        
+        with col5:
+            reset_button = st.button(
+                label=":material/refresh:",
+                on_click = reset_filters
             )
 
         #filtered_df = filter_data(split_pdf_df.copy(), period_filter, selected_problem, selected_category)
