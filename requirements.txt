@@ -3,7 +3,7 @@ tiktoken
 pandas
 scipy
 hana-ml
-hdbcli
+hdbcli==2.22.27
 langchain
 langchain-aws==0.1.7
 langchain_google_vertexai==1.0.8
