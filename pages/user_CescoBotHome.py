@@ -2,6 +2,8 @@ import streamlit as st
 from menu import menu_with_redirect
 import os
 import sys
+import time
+import math
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'server'))
 #print("경로 확인", os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'server'))
@@ -99,6 +101,7 @@ def display_chat():
                 group_name = message.get("group_name")
                 st.markdown("---")
                 
+<<<<<<< HEAD
                 label_message = ":material/Close: 질문 닫기"
 
                 if st.session_state.group_states[group_name]:
@@ -142,12 +145,29 @@ def display_chat():
                             key=f"cancelbt_{message["button_group"]["r1_key"]}",
                             on_click = handle_closed_button, 
                             kwargs={"group_name": group_name})        
+=======
+                st.button(label = message["button_group"]["r2"],
+                          key = message["button_group"]["r2_key"],
+                          on_click=submit_recommended_question,
+                          kwargs={"question": message["button_group"]["r2"]})
+                
+                st.button(label = message["button_group"]["r3"],
+                          key = message["button_group"]["r3_key"],
+                          on_click=submit_recommended_question,
+                          kwargs={"question": message["button_group"]["r3"]})
+                
+                st.button(label = message["button_group"]["r4"],
+                          key = message["button_group"]["r4_key"],
+                          on_click=submit_recommended_question,
+                          kwargs={"question": message["button_group"]["r4"]})
+>>>>>>> origin/main-240925
 
 # Display the chat history
 display_chat()
 
 # User input
 if prompt := st.chat_input("Enter your question") or st.session_state.selected_question :
+    start = time.time()
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -283,6 +303,7 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                     #             on_click= submit_recommended_question,
                     #             kwargs={"question": recommend_group["r1"]})
                         
+<<<<<<< HEAD
                     #     st.button(label = recommend_group["r2"],
                     #             key = recommend_group["r2_key"],
                     #             on_click=submit_recommended_question,
@@ -297,6 +318,29 @@ if prompt := st.chat_input("Enter your question") or st.session_state.selected_q
                     #             key = recommend_group["r4_key"],
                     #             on_click=submit_recommended_question,
                     #             kwargs={"question": recommend_group["r4"]})
+=======
+                    st.button(label = recommend_group["r1"], 
+                            key = recommend_group["r1_key"],
+                            on_click= submit_recommended_question,
+                            kwargs={"question": recommend_group["r1"]})
+                    
+                    st.button(label = recommend_group["r2"],
+                            key = recommend_group["r2_key"],
+                            on_click=submit_recommended_question,
+                            kwargs={"question": recommend_group["r2"]})
+                    
+                    st.button(label = recommend_group["r3"],
+                            key = recommend_group["r3_key"],
+                            on_click=submit_recommended_question,
+                            kwargs={"question": recommend_group["r3"]})
+                    
+                    st.button(label = recommend_group["r4"],
+                            key = recommend_group["r4_key"],
+                            on_click=submit_recommended_question,
+                            kwargs={"question": recommend_group["r4"]})
+    end = time.time()
+    print(f"{end - start:.5f} sec")
+>>>>>>> origin/main-240925
             
 #[20240912 강태영] 다 하고 나서 초기화 하기
 st.session_state.selected_question = ""

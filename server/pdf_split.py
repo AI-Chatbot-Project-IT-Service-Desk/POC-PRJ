@@ -64,7 +64,7 @@ def check_form(uploaded_file):
     page = doc.load_page(0)
     content = extract_content_from_page(page)
     for data in reversed(content):
-        if data['text'] == "224632306323587" or int(data['font_size']) == 9 :
+        if data['text'] == "334632306323587" or int(data['font_size']) == 9 :
             return True
     
     return False
@@ -232,9 +232,14 @@ def extreact_pdf_to_dataframe(page_output_dir):
         try: 
             #[20240830 강태영] 제목만 벡터화 하지 않고 제목과 키워드도 같이 벡터화한다
             vector_text = f"keyword: {keyword}, content: {title}"
+            #임베딩
             title_vector = gams.get_embedding(vector_text)
         except Exception as e:
-            print(e)
+            print(f"Error while fetching embedding: {e}")
+            title_vector = None  # 기본 값 설정 (예: None 또는 빈 리스트)
+        
+        if title_vector is None:
+            title_vector = "default_value"
 
         new_row = pd.DataFrame([{'ProblemDescription': title, 
                                  'ProblemCategory': category,
