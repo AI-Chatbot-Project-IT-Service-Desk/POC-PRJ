@@ -41,8 +41,6 @@ if uploaded_file is not None:
     if(not check_form):
         st.warning("지정된 폼으로 작성된 파일이 아닙니다.", icon="⚠️")
     else:
-        #upload_file_name = (uploaded_file.name).split(".pdf")[0] #업로드한 파일 이름 (확장자 제거)
-
         upload_category_name = ps.extract_file_category(uploaded_file)
 
         if hcs.is_aready_exist_pdf_file(upload_category_name):
