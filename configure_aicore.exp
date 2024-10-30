@@ -4,7 +4,7 @@
 set timeout -1
 
 # Run the aicore configure command
-spawn aicore configure -k config/aihub-key-teon.txt
+spawn aicore configure -k config/cesco-poc-aicore-service-key1.json
 
 # Optionally wait for some output if needed, for example:
 # expect "Please press Enter to continue"
