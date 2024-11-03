@@ -34,8 +34,10 @@ texts = st.session_state.unanswered_df['무응답 내용'].tolist()
 # Analyze and visualize texts
 def analyze_texts(texts, pecab, top_n=10):
     #font_path = 'fonts\세스코R_20140905153946.TTF'  # 서버에 맞는 폰트 경로 설정
-    font = font_manager.FontProperties(fname=font_path).get_name()
-    rc('font', family=font)
+    # font = font_manager.FontProperties(fname=font_path).get_name()
+    # rc('font', family=font)
+
+    plt.rcParams['font.family'] = 'NanumGothic'
 
     tokenized_texts = [' '.join([word for word, pos in pecab.pos(text) if pos in ['NNG', 'NNP']]) for text in texts]
     tfidf = TfidfVectorizer(min_df=1, max_df=0.5)
