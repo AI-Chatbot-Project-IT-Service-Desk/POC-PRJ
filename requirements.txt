@@ -25,3 +25,4 @@ koreanize_matplotlib
 matplotlib
 boto3
 botocore
+pyjwt
