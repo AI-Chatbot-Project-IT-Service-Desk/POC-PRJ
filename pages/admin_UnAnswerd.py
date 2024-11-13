@@ -6,7 +6,8 @@ from streamlit import session_state as ss
 import pandas as pd
 import pecab
 import matplotlib.pyplot as plt
-from matplotlib import font_manager, rc
+#from matplotlib import font_manager, rc
+import matplotlib.font_manager as fm
 from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -37,7 +38,12 @@ def analyze_texts(texts, pecab, top_n=10):
     # font = font_manager.FontProperties(fname=font_path).get_name()
     # rc('font', family=font)
 
-    plt.rcParams['font.family'] = 'NanumGothic'
+    #plt.rcParams['font.family'] = 'NanumGothic'
+    #[20241113 강태영] 폰트 파일 경로 지정
+    #print("메타몽", os.getcwd() + '/fonts/세스코R_20140905153946.TTF')
+    font_path = os.getcwd() + '/fonts/세스코R_20140905153946.TTF'
+    font_name = fm.FontProperties(fname=font_path).get_name()
+    plt.rcParams['font.family'] = font_name
 
     tokenized_texts = [' '.join([word for word, pos in pecab.pos(text) if pos in ['NNG', 'NNP']]) for text in texts]
     tfidf = TfidfVectorizer(min_df=1, max_df=0.5)
