@@ -41,7 +41,11 @@ def analyze_texts(texts, pecab, top_n=10):
     #plt.rcParams['font.family'] = 'NanumGothic'
     #[20241113 강태영] 폰트 파일 경로 지정
     #print("메타몽", os.getcwd() + '/fonts/세스코R_20140905153946.TTF')
-    font_path = os.getcwd() + '/fonts/세스코R_20140905153946.TTF'
+    if os.environ.get('DOCER_FONT_PATH'):
+        font_path = '/app/fonts/세스코R_20140905153946.TTF'
+    else:
+        font_path = os.getcwd() + '/fonts/세스코R_20140905153946.TTF'
+
     font_name = fm.FontProperties(fname=font_path).get_name()
     plt.rcParams['font.family'] = font_name
 
