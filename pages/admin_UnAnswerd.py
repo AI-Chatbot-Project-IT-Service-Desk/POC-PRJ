@@ -5,8 +5,8 @@ import streamlit as st
 from streamlit import session_state as ss
 import pandas as pd
 import pecab
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-#from matplotlib import font_manager, rc
 import matplotlib.font_manager as fm
 from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -32,13 +32,27 @@ if "unanswered_df" not in st.session_state:
 
 texts = st.session_state.unanswered_df['무응답 내용'].tolist()
 
+#[20241115 강태영] 폰트 깨짐 오류 해결
+# print ('버전: ', mpl.__version__)
+# print ('설치 위치: ', mpl.__file__)
+# print ('설정 위치: ', mpl.get_configdir())
+# print ('캐시 위치: ', mpl.get_cachedir())
+# print ('설정 파일 위치: ', mpl.matplotlib_fname())
+
+font_list = fm.findSystemFonts(fontpaths=None, fontext='ttf')
+
+# ttf 폰트 전체개수
+# f = [f.name for f in fm.fontManager.ttflist]
+# print(len(font_list))
+# print(f)
+
 # Analyze and visualize texts
 def analyze_texts(texts, pecab, top_n=10):
     #font_path = 'fonts\세스코R_20140905153946.TTF'  # 서버에 맞는 폰트 경로 설정
     # font = font_manager.FontProperties(fname=font_path).get_name()
     # rc('font', family=font)
 
-    #plt.rcParams['font.family'] = 'NanumGothic'
+    plt.rcParams['font.family'] = 'NanumGothic'
     #[20241113 강태영] 폰트 파일 경로 지정
     #print("메타몽", os.getcwd() + '/fonts/세스코R_20140905153946.TTF')
     if os.environ.get('DOCER_FONT_PATH'):
