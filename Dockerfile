@@ -9,7 +9,10 @@ ENV LANGUAGE en_US.UTF-8
 ENV DOCER_FONT_PATH = 1
 
 # Install expect >>> To press enter
-RUN apt-get update && apt-get install -y expect
+RUN apt-get update && apt-get install -y expect fonts-nanum && rm -rf /var/lib/apt/lists/*
+
+#폰트 캐시 업데이트
+RUN fc-cache -fv
 
 # Custom location to place code files
 RUN mkdir -p /app/
