@@ -39,7 +39,7 @@ texts = st.session_state.unanswered_df['무응답 내용'].tolist()
 # print ('캐시 위치: ', mpl.get_cachedir())
 # print ('설정 파일 위치: ', mpl.matplotlib_fname())
 
-font_list = fm.findSystemFonts(fontpaths=None, fontext='ttf')
+#font_list = fm.findSystemFonts(fontpaths=None, fontext='ttf')
 
 # ttf 폰트 전체개수
 # f = [f.name for f in fm.fontManager.ttflist]
@@ -52,16 +52,16 @@ def analyze_texts(texts, pecab, top_n=10):
     # font = font_manager.FontProperties(fname=font_path).get_name()
     # rc('font', family=font)
 
-    plt.rcParams['font.family'] = 'NanumGothic'
+    #plt.rcParams['font.family'] = 'NanumGothic'
     #[20241113 강태영] 폰트 파일 경로 지정
     #print("메타몽", os.getcwd() + '/fonts/세스코R_20140905153946.TTF')
-    if os.environ.get('DOCER_FONT_PATH'):
-        font_path = '/app/fonts/세스코R_20140905153946.TTF'
-    else:
-        font_path = os.getcwd() + '/fonts/세스코R_20140905153946.TTF'
+    # if os.environ.get('DOCER_FONT_PATH'):
+    #     font_path = '/app/fonts/세스코R_20140905153946.TTF'
+    # else:
+    #     font_path = os.getcwd() + '/fonts/세스코R_20140905153946.TTF'
 
-    font_name = fm.FontProperties(fname=font_path).get_name()
-    plt.rcParams['font.family'] = font_name
+    # font_name = fm.FontProperties(fname=font_path).get_name()
+    plt.rcParams['font.family'] = 'NanumGothic'
 
     tokenized_texts = [' '.join([word for word, pos in pecab.pos(text) if pos in ['NNG', 'NNP']]) for text in texts]
     tfidf = TfidfVectorizer(min_df=1, max_df=0.5)

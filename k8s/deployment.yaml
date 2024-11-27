@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: cesco-ai-helpdesk
-        image: chanran33/cesco-ai-helpdesk:2.0.3
+        image: chanran33/cesco-ai-helpdesk:5.0.0
         imagePullPolicy: Always
         resources:
           limits:
